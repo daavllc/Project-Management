@@ -26,7 +26,7 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] API for accessing each class and it’s data
  - [ ] Header class
  - [ ] Contribution class
- - [ ] Contributor class
+ - [X] Contributor class
 
 ----
 

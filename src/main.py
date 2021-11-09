@@ -1,22 +1,42 @@
-#
-## Cost/Time Management
+######################################################################################################
+#  ____   _____   ________  ____  ______    _        ___   _     _ ___  _____   ____     ____ _____  #
+# |  __ \|  __ \ /|_    __|/ __ \|__  __|  | \      / _ \ | \   | | _ \/  __ \ |  __|   /  __|_  __| #
+# | |  \ \ |  \ \ / \ \|  | |  \ \  | |    |  \    / / \ \|  \  | |/ \ \ /  \_\| |\    /  | \  | |   #
+# | |__/ / |__/ /|   | |  | |_  |_| | |    | \ \  / /___\ \ \ \ | |   | |  ____| |_\  / / |_ \ | |   #
+# |  ___/|  _  / |   | |  |  _|  _  | |    | |\ \/ /______ \ \ \| |___| | |___ |  _|\/ /|  _| \| |   #
+# | |    | | \ \_|   | |  | |   | | | |    | | \/ / | |   \ \ \ \ |___  |    | | | \__/ | |  \ \ |   #
+# | |    | |  \ \ \_/ /   | |__/ /  | |    | | / /  | |   |\ \ \  |   | |___/ /| |__    | |__ \  |   #
+# |_|    |_|   \_\___/    |\____/   |_|    |_|/_/   |_|   |_\ \ \_|   |_|____/ |____|   |____| \_|   #
+#                                                                                                    #
+######################################################################################################
+#------------------------------------------   v0.0.1   ----------------------------------------------#
+######################################################################################################
 # Author: DAAV, LLC (https://github.com/daavofficial)
 # Language: Python 3.10
 # License: GPLv3
-# Purpose: Create easy-to-use graphical program for managing cost/time of projects
-# Contributors: 
-"""
-    Anonoei: https://github.com/Anonoei
-"""
+## Project-Management
+# Easy to use graphical application for managing projects
+##########################################################
+# Project Lead: Anonoei (https://github.com/Anonoei)
 
-from project_management.management import Management
+import datetime
+
+from common_types.contributor import Contributor
 
 def main():
-    app = Management()
+    c = Contributor()
+    c.SetName('Anonoei')
+    c.SetURL('https://github.com/Anonoei')
+    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit")
+    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 2")
+    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 3")
+    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 4")
+    c.Export("data")
+    print(str(c))
 
-    app.uiSetup()
-    app.uiRuntime()
-    app.uiShutdown()
+    c = Contributor()
+    c.Import("data", "Anonoei")
+    print(str(c))
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
