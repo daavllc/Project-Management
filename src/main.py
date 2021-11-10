@@ -9,8 +9,6 @@
 # |_|    |_|   \_\___/    |\____/   |_|    |_|/_/   |_|   |_\ \ \_|   |_|____/ |____|   |____| \_|   #
 #                                                                                                    #
 ######################################################################################################
-#------------------------------------------   v0.0.1   ----------------------------------------------#
-######################################################################################################
 # Author: DAAV, LLC (https://github.com/daavofficial)
 # Language: Python 3.10
 # License: GPLv3
@@ -22,8 +20,12 @@
 import datetime
 
 from common_types.contributor import Contributor
+import config.config as config
 
 def main():
+    print(f"Project Management {config.VERSION}")
+
+def does_not_work_now():
     c = Contributor()
     c.SetName('Anonoei')
     c.SetURL('https://github.com/Anonoei')

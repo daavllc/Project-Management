@@ -1,4 +1,4 @@
-# Project Management v0.0.1
+# Project Management
  Easy to use graphical application for managing projects
 
 ## Purpose:
@@ -29,44 +29,60 @@ In order to effectively manage projects within an organization, details about ea
  - [X] Contributor class
 
 ----
-
-## Projects
- A project contains various information, and each item can be considered nested in the item above it:
+## Structure
+The files are structured as follows:
+ - ~root~
+   - Projects
+     - Contributions
+     - Contributors
+This allows contributors and contributions to co-exist, and 'see' eachother
+### Projects
+ A project contains various information:
  - Header
  - Contributions
  - Contributors
-### Header
+### Project Header
  - Name
- - Description/goal
+ - Description/goal of project
  - Creation Date
  - Project lead/originator
- - Version - Release.Major.Minor Patch #.#.# #su
- - Time invested (total) - automatic from contribution data
- - Money Invested (total) - automatic from contribution data
- - Contributions:
-### Contributions
+ - Version - Release.Major.Minor - #.#.#
+ - Generated:
+   - Time invested (total) - automatic from contribution data
+   - Money Invested (total) - automatic from contribution data
+   - Number of contributions
+   - Number of contributors
+### Project Contributions
  - Name
+ - Creation Date
+ - Contribution Number - 01, 02, 03...
  - Description/goal
  - Contribution lead/originator
- - Version increase
- - Current progress %
- - Time invested (total)
- - Money invested (total)
- - Contributors:
-### Contributors
+ - Version increase - #.#.#
+ - Current progress (%)
+ - Contribution UUID
+ - Contributors - list of contributors
+ - Generated:
+   - Time invested (total) - automatic from contributor data
+   - Money invested (total) - automatic from contributor data
+### Project Contributors
  - Name
- - What was added
-   - Date worked on
-     - Time worked on
+ - Date began project work
+ - URL
+ - Contributor UUID
+ - Additions
+   - Hours
+   - Date
+   - Description of addition
+   - Contribution UUID
       
 ## Installation
 Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported, but there is no windows-only code.
 
 ## Download from source
  1. `git clone https://github.com/daavofficial/Project-Management.git`
-   - If wanted, create python environment
  2. Install dependancies
-   - `pip install dearpygui`
+    - `pip install dearpygui`
  3. Open 'Project-Management' folder.
- 4. Run Win-Launch.bat
- 5. Begin using
+ 4. Run [Win-Launch.bat](https://github.com/daavofficial/Project-Management/blob/main/Win-Launch.bat)
+ 5. Enjoy (this is optional)
