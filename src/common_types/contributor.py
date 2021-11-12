@@ -15,21 +15,25 @@ if __name__ == "__main__":
     exit(-1)
 
 class Contributor:
-    def __init__(self, name: str = None, date: datetime.date = None, url: str = None):
+    def __init__(self, name: str = 'None', date: datetime.date = 'None', url: str = 'None'):
         self.Info = {
             'name' : name,        # Name of Contributor
-            'date' : date,        # Contributor first added date
+            'date' : date,        # Date contributor was added to the project
             'url' : url,          # Contributor URL
             'uuid' : uuid.uuid4() # Contributor UUID -> don't touch
         }
         self.Additions = {} # hours, dates, what was added, what contribution
 
-
+    # ---============================================================---
+    #               Operation overloads
+    # ---============================================================---
     def __str__(self) -> str:
-        return f"{self.GetName()} helped with {len(self.GetContributions())} contributions, with {self.__len__()} additions over {self.GetTotalHours()} hours"
+        return f"{self.GetName()} helped with {len(self.GetWorkedContributions())} contributions, with {self.__len__()} additions over {self.GetTotalHours()} hours"
 
     def __repr__(self) -> str:
-        return f"{self.GetName()}: {self.GetUUID()}"
+        retr = f"{self.GetName()}: {self.GetUUID()}\n"
+        retr += f"Started on {self.GetDate()}, worked on {len(self.GetWorkedContributions())} contributions"
+        return retr
 
     def __len__(self) -> int:
         return int(len(self.Additions) / 4)
@@ -103,7 +107,7 @@ class Contributor:
     def GetDescriptions(self) -> list[str]:
         return [v for k, v in self.Additions.items() if k.startswith('desc')]
 
-    def GetContributions(self) -> list[uuid.UUID]: # returns list of unique contribution uuids
+    def GetWorkedContributions(self) -> list[uuid.UUID]: # returns list of unique contribution uuids
         return list(set([v for k, v in self.Additions.items() if k.startswith('cont')]))
 
     def GetContributionInfo(self, cID: uuid.UUID) -> list[float, datetime.date, str]: # Returns list of data for the supplied contribution
@@ -118,10 +122,16 @@ class Contributor:
             return [ None, None, None ]
         return info
 
+    def GetContributionHours(self, cID: uuid.UUID) -> float:
+        info = self.GetContributionInfo(cID)
+        return sum(info[0])
+
     def GetAddition(self, index: int) -> list[float, datetime.date, str, uuid.UUID]: # Returns list of data by addition 'index'
         return [ self.Additions.get(f'hours{index}', None), self.Additions.get(f'date{index}', None), self.Additions.get(f'desc{index}', None), self.Additions.get(f'cont{index}', None) ]
 
-    # Serialization
+    # ---============================================================---
+    #               Serialization
+    # ---============================================================---
     def Export(self, path: str) -> None:
         if not os.path.exists(path):
             os.mkdir(path)
@@ -133,7 +143,7 @@ class Contributor:
         with open(os.path.join(path, "info.inf"), 'w') as f:
             f.write(self.GetName() + "\n")
             f.write(self.GetDateStr() + "\n")
-            f.write(self.GetDate() + "\n")
+            f.write(self.GetURL() + "\n")
             f.write(self.GetUUIDStr() + "\n")
         with open(os.path.join(path, "data.csv"), "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -151,14 +161,14 @@ class Contributor:
             self.SetUUID(lines[3].strip())
         with open(os.path.join(path, "data.csv"), 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
-            rows = sum(1 for line in f)
 
-            for index in range(rows):
-                row = next(reader)
+            index = 0
+            for row in reader:
                 self.Additions[f'hours{index}'] = float(row[0])
                 date = row[1].split('-')
                 self.Additions[f'date{index}'] = datetime.date(int(date[0]), int(date[1]), int(date[2]))
                 self.Additions[f'desc{index}'] = row[2]
                 self.Additions[f'cont{index}'] = uuid.UUID(row[3])
+                index += 1
 
 

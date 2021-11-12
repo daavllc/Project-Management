@@ -8,6 +8,7 @@ In order to effectively manage projects within an organization, details about ea
  - Project lead: [Anonoei](https://github.com/Anonoei)
  - Language: Python 3.10
  - License: GPLv3
+ - Dependancies: dearpygui
 
 ----
 
@@ -22,19 +23,20 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] DearPyGui implementation
  - [ ] Project import/export
  - [ ] Initial working implementation
- - [ ] Command line access
+ - [ ] Get data by UUID instead of name
  - [ ] API for accessing each class and it’s data
- - [ ] Header class
- - [ ] Contribution class
+ - [ ] Project Header class
+ - [X] Contribution class
  - [X] Contributor class
 
 ----
 ## Structure
 The files are structured as follows:
- - ~root~
-   - Projects
+ - Projects
+   - Project Name
      - Contributions
      - Contributors
+
 This allows contributors and contributions to co-exist, and 'see' eachother
 ### Projects
  A project contains various information:
@@ -56,7 +58,7 @@ This allows contributors and contributions to co-exist, and 'see' eachother
  - Name
  - Creation Date
  - Contribution Number - 01, 02, 03...
- - Description/goal
+ - Description/goal of contribution
  - Contribution lead/originator
  - Version increase - #.#.#
  - Current progress (%)
@@ -77,12 +79,11 @@ This allows contributors and contributions to co-exist, and 'see' eachother
    - Contribution UUID
       
 ## Installation
-Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported, but there is no windows-only code.
+Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported, although there is no windows-only code.
 
 ## Download from source
  1. `git clone https://github.com/daavofficial/Project-Management.git`
- 2. Install dependancies
-    - `pip install dearpygui`
  3. Open 'Project-Management' folder.
  4. Run [Win-Launch.bat](https://github.com/daavofficial/Project-Management/blob/main/Win-Launch.bat)
- 5. Enjoy (this is optional)
+    - This will check your python version and prompt for requirement installation (dearpygui)
+ 5. Enjoy (required)

@@ -1,8 +1,8 @@
-PATH_ROOT = "../data" # This is the root path: root/Projects/Contributions
-TESTING_PATH_ROOT = "../t_data"
+PATH_ROOT = "../Projects" # This is the root path: root/Projects/Project Name/*
+TESTING_PATH_ROOT = "../t_Projects"
 
-VERSION = "v0.0.2"
+VERSION = "v0.0.3"
 
-FOLDER_PROJECTS = "Projects"
+PATH_CURRENT_PROJECT = ""
 FOLDER_CONTRIBUTIONS = "Contributions"
 FOLDER_CONTRIBUTORS = "Contributors"

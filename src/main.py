@@ -19,26 +19,35 @@
 
 import datetime
 
+from common_types.base_types.version import Version as Version
 from common_types.contributor import Contributor
+from common_types.contribution import Contribution
 import config.config as config
 
 def main():
     print(f"Project Management {config.VERSION}")
 
-def does_not_work_now():
-    c = Contributor()
-    c.SetName('Anonoei')
-    c.SetURL('https://github.com/Anonoei')
-    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit")
-    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 2")
-    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 3")
-    c.Push(1.5, datetime.date(2021, 11, 8), "Initial commit 4")
-    c.Export("data")
-    print(str(c))
+    config.PATH_CURRENT_PROJECT = config.PATH_ROOT + "/Name"
 
-    c = Contributor()
-    c.Import("data", "Anonoei")
-    print(str(c))
+    ctb = Contribution()
+    ctb.SetName("Initial commit")
+    ctb.SetDate(datetime.datetime.now().date())
+    ctb.SetNumber("001")
+    ctb.SetDescription("Initial commit")
+    ctb.SetLead("Anonoei")
+    ctb.SetVersionChange(Version("0.0.1"))
+    ctb.UpdateProgress(10.0, datetime.datetime.now().date())
+
+    ctb.Push("Anonoei", 1.5, datetime.datetime.now().date(), "Updated README")
+
+    print(repr(ctb))
+    print("-----------------------------------")
+
+    ctb.Export(config.PATH_CURRENT_PROJECT + "/Contributions")
+
+    ctb = Contribution()
+    ctb.Import(config.PATH_CURRENT_PROJECT + "/Contributions", "001. Initial commit")
+    print(repr(ctb))
 
 if __name__ == '__main__':
     main()
