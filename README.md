@@ -18,10 +18,13 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] Project Explorer
  - [ ] One-click start/end/pause timer for contributions
  - [ ] Get data by UUID instead of name
- - [ ] Project editor/viewer
- - [ ] Contribution editor/viewer
- - [ ] Contributor editor/viewer
  - [ ] Graphical User Interface (dearpygui)
+ - [ ] GUI Project editor
+ - [ ] GUI Contribution editor
+ - [ ] GUI Contributor editor
+ - [X] GUI Project viewer
+ - [X] GUI Contribution viewer
+ - [X] GUI Contributor viewer
  - [X] Console User Inerface
  - [X] Project import/export
  - [X] Initial working implementation
@@ -100,5 +103,5 @@ Note: currently there are no releases, so it must be downloaded from�
       - Launch [main.py](https://github.com/daavofficial/Project-Management/blob/main/src/main.py)
         - Prompt for what UI to use 
       - Allows reloading/error handling
- 5. Type `1` to select [CUI](https://github.com/daavofficial/Project-Management/blob/main/src/cui/cui.py), as the [GUI](https://github.com/daavofficial/Project-Management/blob/main/src/gui/gui.py) is not implemented yet
+ 5. Type `1` or `2` to select [CUI](https://github.com/daavofficial/Project-Management/blob/main/src/cui/cui.py), or the [GUI](https://github.com/daavofficial/Project-Management/blob/main/src/gui/gui.py) respectively
  6. (Optional) Enjoy
