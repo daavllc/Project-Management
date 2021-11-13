@@ -2,13 +2,13 @@ class Version:
     class Errors:
         class InvalidInitializationArgs(Exception):
             def __init__(self, message: str = "Invalid initalization arguments provided"):
-                super().__init__(self.message)
+                super().__init__(message)
         class InvalidVersionString(Exception):
             def __init__(self, message: str = "Invalid version string provided"):
-                super().__init__(self.message)
+                super().__init__(message)
         class UnsupportedOperator(Exception):
             def __init__(self, message: str = "Unsupported operation"):
-                super().__init__(self.message)
+                super().__init__(message)
 
     def __init__(self, *args): # Takes int, int, int or str
         if len(args) == 3:
@@ -23,12 +23,17 @@ class Version:
         else:
             raise self.Errors.InvalidInitializationArgs(f"Invalid initalization arguments provided: {str(args)}")
 
-    def FromInts(self, release: int, major: int, minor: int):
+    def FromInts(self, release: int, major: int, minor: int) -> None:
         self.Release = release
         self.Major = major
         self.Minor = minor
 
-    def FromStr(self, version: str):
+    def FromStr(self, version: str) -> None:
+        if version == None or version == "None.None.None":
+            self.Release = None
+            self.Major = None
+            self.Minor = None
+            return
         vstr = version.split('.')
         try:
             self.Release = int(vstr[0])
@@ -41,6 +46,8 @@ class Version:
     #               Operation overloads
     # ---============================================================---
     def __str__(self) -> str:
+        if self.Release == None or self.Major == None or self.Minor == None:
+            return "None"
         return f"{self.Release}.{self.Major}.{self.Minor}"
 
     def __repr__(self) -> str:

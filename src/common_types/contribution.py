@@ -14,7 +14,7 @@ from .contributor import Contributor
 import config.config as config
 
 class Contribution:
-    def __init__(self, name: str = 'None', date: datetime.date = 'None', number: str = 'None', desc: str = 'None', lead: str = 'None', change: Version = 'None'):
+    def __init__(self, name: str = 'None', date: datetime.date = datetime.datetime.now().date(), number: str = 'None', desc: str = 'None', lead: str = 'None', change: Version = 'None'):
         self.Info = {
             'name' : name,         # Name of the contribution
             'date' : date,         # Contribution creation date
@@ -32,11 +32,12 @@ class Contribution:
     #               Operation overloads
     # ---============================================================---
     def __str__(self) -> str:
-        return f"'{self.GetName()}' created on {self.GetDate()}"
+        return f"'{self.GetName()}' created on {self.GetDateStr()}"
 
     def __repr__(self) -> str:
-        retr = f"'{self.GetName()}': {self.GetUUID()}\n"
-        retr += f"Created on {self.GetDate()}, vChange {self.GetVersionChange()}\n"
+        retr = f"'{self.GetName()}': {self.GetUUIDStr()}\n"
+        retr += f"Created on {self.GetDate()}, vChange {self.GetVersionChangeStr()}\n"
+        retr += f"Lead by '{self.GetLead()}', {self.GetTotalProgressStr()()}% complete\t"
         retr += f"{self.__len__()} progress changes and {len(self.Contributors)} contributors\n"
         num = 1
         for prog in self.GetProgress():
@@ -52,6 +53,7 @@ class Contribution:
     # ---============================================================---
     #               self.Info get/Get
     # ---============================================================---
+    # Setters
     def SetName(self, name: str) -> None:
         self.Info['name'] = name
 
@@ -73,30 +75,31 @@ class Contribution:
     def SetUUID(self, uid: str) -> None:
         self.Info['uuid'] = uuid.UUID(uid)
 
+    # Getters
     def GetName(self) -> str:
-        return self.Info.get('name', None)
+        return self.Info.get('name')
 
     def GetDate(self) -> datetime.date:
-        return self.Info.get('date', None)
+        return self.Info.get('date')
     def GetDateStr(self) -> str:
         return str(self.GetDate())
 
     def GetNumber(self) -> str:
-        return self.Info.get('number', None)
+        return self.Info.get('number')
 
     def GetDescription(self) -> str:
-        return self.Info.get('desc', None)
+        return self.Info.get('desc')
 
     def GetLead(self) -> str:
-        return self.Info.get('lead', None)
+        return self.Info.get('lead')
 
     def GetVersionChange(self) -> Version:
-        return self.Info.get('vChange', None)
+        return self.Info.get('vChange')
     def GetVersionChangeStr(self) -> str:
         return str(self.GetVersionChange())
 
     def GetUUID(self) -> uuid.UUID:
-        return self.Info.get('uuid', None)
+        return self.Info.get('uuid')
     def GetUUIDStr(self) -> str:
         return str(self.GetUUID())
 
@@ -129,12 +132,13 @@ class Contribution:
         self.Contributors[name] = cid
 
     def InitContributor(self, name: str) -> Contributor:
-        if os.path.exists(config.PATH_CURRENT_PROJECT + "/Contributors/" + name):
+        path = config.PATH_CURRENT_PROJECT + "/" + config.FOLDER_CONTRIBUTORS
+        if os.path.exists(path + "/" + name):
             ctr = Contributor()
-            ctr.Import(config.PATH_CURRENT_PROJECT + "/Contributors", name)
+            ctr.Import(path + "/" + name)
             return ctr
         else: # This means the contributor does not exist, new contributor?
-            print("Creating new contributor " + name)
+            print(f"Creating new contributor '{name}'")
             ctr = Contributor()
             ctr.SetName(name)
             ctr.SetDate(datetime.datetime.now().date())
@@ -145,20 +149,20 @@ class Contribution:
         ctr.Push(hours, date, description, self.GetUUID())
         if not contributorName in self.Contributors.keys():
             self.AddContributor(ctr.GetName(), ctr.GetUUID())
-        ctr.Export(config.PATH_CURRENT_PROJECT + "/Contributors")
+        ctr.Export(config.PATH_CURRENT_PROJECT + "/" + config.FOLDER_CONTRIBUTORS)
 
     # ---============================================================---
     #               Serialization
     # ---============================================================---
-    def Export(self, path: str) -> None:
+    def Export(self, path: str) -> None: # path expects contributions folder ex: projects/name/contributions
         if not os.path.exists(path):
             os.mkdir(path)
 
-        path = os.path.join(path, f"{self.GetNumber()}. {self.GetName()}")
+        path = f"{path}/{self.GetNumber()}. {self.GetName()}"
         if not os.path.exists(path):
             os.mkdir(path)
 
-        with open(os.path.join(path, "info.inf"), 'w') as f:
+        with open(f"{path}/info.inf", 'w') as f:
             f.write(self.GetName() + "\n")
             f.write(self.GetDateStr() + "\n")
             f.write(self.GetNumber() + "\n")
@@ -167,19 +171,19 @@ class Contribution:
             f.write(self.GetVersionChangeStr() + "\n")
             f.write(self.GetUUIDStr() + "\n")
 
-        with open(os.path.join(path, "contributors.csv"), "w", newline='', encoding='utf-8') as f:
+        with open(f"{path}/contributors.csv", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for key, value in self.Contributors.items():
                 writer.writerow([key, value])
 
-        with open(os.path.join(path, "progress.csv"), "w", newline='', encoding='utf-8') as f:
+        with open(f"{path}/progress.csv", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for prog in self.GetProgress():
                 writer.writerow(prog)
 
-    def Import(self, path: str, name: str) -> None:
-        path = os.path.join(path, name)
-        with open(os.path.join(path, "info.inf"), 'r') as f:
+    def Import(self, path: str, filename: str) -> None: # expects name to be filename ex: '001. Name'
+        path = f"{path}/{filename}"
+        with open(f"{path}/info.inf", 'r') as f:
             lines = f.readlines()
             self.SetName(lines[0].strip())
             date = lines[1].strip().split('-')
@@ -189,13 +193,13 @@ class Contribution:
             self.SetLead(lines[4].strip())
             self.SetVersionChange(Version(lines[5].strip()))
             self.SetUUID(lines[6].strip())
-        with open(os.path.join(path, "contributors.csv"), 'r', newline='', encoding='utf-8') as f:
+        with open(f"{path}/contributors.csv", 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
 
             for row in reader:
                 self.AddContributor(row[0], row[1])
 
-        with open(os.path.join(path, "progress.csv"), 'r', newline='', encoding='utf-8') as f:
+        with open(f"{path}/progress.csv", 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
 
             for row in reader:

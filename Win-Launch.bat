@@ -1,12 +1,4 @@
 @echo off
-
-:SETUP
-cd src/setup
-python3 Setup.py
-cd ..
-
-:MAINLOOP
-python3 main.py
-if %errorlevel% == -1 GOTO :MAINLOOP
+cd src/launch
+powershell -NoProfile -ExecutionPolicy RemoteSigned ".\launch.ps1"
 PAUSE
-exit

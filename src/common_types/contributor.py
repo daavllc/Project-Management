@@ -15,7 +15,7 @@ if __name__ == "__main__":
     exit(-1)
 
 class Contributor:
-    def __init__(self, name: str = 'None', date: datetime.date = 'None', url: str = 'None'):
+    def __init__(self, name: str = 'None', date: datetime.date = datetime.datetime.now().date(), url: str = 'None'):
         self.Info = {
             'name' : name,        # Name of Contributor
             'date' : date,        # Date contributor was added to the project
@@ -136,30 +136,30 @@ class Contributor:
         if not os.path.exists(path):
             os.mkdir(path)
 
-        path = os.path.join(path, self.GetName())
+        path = f"{path}/{self.GetName()}"
         if not os.path.exists(path):
             os.mkdir(path)
 
-        with open(os.path.join(path, "info.inf"), 'w') as f:
+        with open(f"{path}/info.inf", 'w') as f:
             f.write(self.GetName() + "\n")
             f.write(self.GetDateStr() + "\n")
             f.write(self.GetURL() + "\n")
             f.write(self.GetUUIDStr() + "\n")
-        with open(os.path.join(path, "data.csv"), "w", newline='', encoding='utf-8') as f:
+        with open(f"{path}/data.csv", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for index in range(self.__len__()):
                 writer.writerow(self.GetAddition(index))
 
     def Import(self, path: str, name: str) -> None:
-        path = os.path.join(path, name)
-        with open(os.path.join(path, "info.inf"), 'r') as f:
+        path = f"{path}/{name}"
+        with open(f"{path}/info.inf", 'r') as f:
             lines = f.readlines()
             self.SetName(lines[0].strip())
             date = lines[1].split('-')
             self.SetDate(datetime.date(int(date[0]), int(date[1]), int(date[2])))
             self.SetURL( lines[2].strip())
             self.SetUUID(lines[3].strip())
-        with open(os.path.join(path, "data.csv"), 'r', newline='', encoding='utf-8') as f:
+        with open(f"{path}/data.csv", 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
 
             index = 0
