@@ -1,5 +1,5 @@
 # Project Management
- Easy to use graphical application for managing projects
+ Easy to use GUI/CUI for managing projects
 
 ## Purpose:
 In order to effectively manage projects within an organization, details about each project, hours and time invested, it’s contributions, and contributors must be kept. This will allow DAAV, LLC to function more efficiently, by ensuring details about all of our projects are well maintained. We hope to streamline and automate this process as much as possible, to spend more time developing, instead of describing what we’ve developed.
@@ -21,7 +21,7 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] Project editor/viewer
  - [ ] Contribution editor/viewer
  - [ ] Contributor editor/viewer
- - [ ] DearPyGui implementation
+ - [ ] Graphical User Interface (dearpygui)
  - [X] Console User Inerface
  - [X] Project import/export
  - [X] Initial working implementation

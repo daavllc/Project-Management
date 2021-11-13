@@ -5,9 +5,9 @@ from .Edit import Edit
 from .View import View
 from .Help import Help
 
-class ViewportMenu:
+class Menu:
     def __init__(self, parent):
-        self.parent = parent
+        self.parent = parent # gui.gui.Application
         with dpg.viewport_menu_bar():
             self.File = File(self)
             self.Edit = Edit(self)

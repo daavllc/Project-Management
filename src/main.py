@@ -19,6 +19,7 @@
 
 import argparse
 import datetime
+import sys
 
 import interface
 import config.config as config
@@ -47,7 +48,7 @@ def main():
         LaunchGUI(args)
     else:
         LaunchMenu(args)
-    exit()
+    sys.exit(0)
 
 def LaunchCUI(args):
     args.UI = interface.Type.CUI
@@ -105,30 +106,6 @@ def LaunchMenu(args):
         except KeyboardInterrupt:
             print("Goodbye!")
             exit()
-
-
-def old_code():
-    config.PATH_CURRENT_PROJECT = config.PATH_ROOT + "/Name"
-
-    ctb = Contribution()
-    ctb.SetName("Initial commit")
-    ctb.SetDate(datetime.datetime.now().date())
-    ctb.SetNumber("001")
-    ctb.SetDescription("Initial commit")
-    ctb.SetLead("Anonoei")
-    ctb.SetVersionChange(Version("0.0.1"))
-    ctb.UpdateProgress(10.0, datetime.datetime.now().date())
-
-    ctb.Push("Anonoei", 1.5, datetime.datetime.now().date(), "Updated README")
-
-    print(repr(ctb))
-    print("-----------------------------------")
-
-    ctb.Export(config.PATH_CURRENT_PROJECT + "/Contributions")
-
-    ctb = Contribution()
-    ctb.Import(config.PATH_CURRENT_PROJECT + "/Contributions", "001. Initial commit")
-    print(repr(ctb))
 
 if __name__ == '__main__':
     main()

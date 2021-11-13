@@ -29,7 +29,7 @@ class Version:
         self.Minor = minor
 
     def FromStr(self, version: str) -> None:
-        if version == None or version == "None.None.None":
+        if version == None or version == "None.None.None" or version == "None":
             self.Release = None
             self.Major = None
             self.Minor = None
