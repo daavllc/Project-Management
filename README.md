@@ -35,16 +35,16 @@ In order to effectively manage projects within an organization, details about ea
 The files are structured as follows:
  - Projects
    - Project Name
-     - header.inf
+     - *header.inf*
      - Contributions
        - Contribution Name
-         - contributors.csv
-         - info.inf
-         - progress.csv
+         - *contributors.csv*
+         - *info.inf*
+         - *progress.csv*
      - Contributors
        - Contributor Name
-         - data.csv
-         - info.inf
+         - *data.csv*
+         - *info.inf*
 
 This allows contributors and contributions to co-exist, and 'see' eachother
 ### Projects
@@ -52,7 +52,7 @@ This allows contributors and contributions to co-exist, and 'see' eachother
  - Header
  - Contributions
  - Contributors
-### Project Header
+### [Project Header](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/project.py)
  - Name
  - Description/goal of project
  - Creation Date
@@ -63,7 +63,7 @@ This allows contributors and contributions to co-exist, and 'see' eachother
    - Money Invested (total) - automatic from contribution data
    - Number of contributions
    - Number of contributors
-### Project Contributions
+### [Project Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contribution.py)
  - Name
  - Creation Date
  - Contribution Number - 01, 02, 03...
@@ -76,7 +76,7 @@ This allows contributors and contributions to co-exist, and 'see' eachother
  - Generated:
    - Time invested (total) - automatic from contributor data
    - Money invested (total) - automatic from contributor data
-### Project Contributors
+### [Project Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contributor.py)
  - Name
  - Date began project work
  - URL
@@ -94,10 +94,11 @@ Note: currently there are no releases, so it must be downloaded from�
  1. `git clone https://github.com/daavofficial/Project-Management.git`
  3. Open 'Project-Management' folder.
  4. Run [Win-Launch.bat](https://github.com/daavofficial/Project-Management/blob/main/Win-Launch.bat)
-    - This launches `src/launch/launch.ps1` which performs various functions
+    - This launches [launch.ps1](https://github.com/daavofficial/Project-Management/blob/main/src/launch/launch.ps1) which performs various functions
       - Check environment variables for python/python3 to choose the best one
-      - Launch `src/setup/Setup.py` to check python version and prompy for required packages
-      - Allows reloading/handling
- 4. `src/main.py` will ask for what UI to use
- 5. Select `1` for CUI, as the GUI is not implemented yet
+      - Launch [Setup.py](https://github.com/daavofficial/Project-Management/blob/main/src/setup/Setup.py) to [check python version](https://github.com/daavofficial/Project-Management/blob/main/src/setup/SetupPython.py) and prompt for required packages
+      - Launch [main.py](https://github.com/daavofficial/Project-Management/blob/main/src/main.py)
+        - Prompt for what UI to use 
+      - Allows reloading/error handling
+ 5. Type `1` to select [CUI](https://github.com/daavofficial/Project-Management/blob/main/src/cui/cui.py), as the [GUI](https://github.com/daavofficial/Project-Management/blob/main/src/gui/gui.py) is not implemented yet
  6. (Optional) Enjoy
