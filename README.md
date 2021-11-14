@@ -15,16 +15,15 @@ In order to effectively manage projects within an organization, details about ea
 ## Current status/roadmap:
  - [ ] External integrations?
  - [ ] Search for projects
- - [ ] Project Explorer
  - [ ] One-click start/end/pause timer for contributions
- - [ ] Get data by UUID instead of name
- - [ ] Graphical User Interface (dearpygui)
- - [ ] GUI Project editor
- - [ ] GUI Contribution editor
- - [ ] GUI Contributor editor
+ - [ ] Polished Graphical User Interface (dearpygui)
+ - [X] GUI Project editor
+ - [X] GUI Contribution editor
+ - [X] GUI Contributor editor
  - [X] GUI Project viewer
  - [X] GUI Contribution viewer
  - [X] GUI Contributor viewer
+ - [X] Get data by UUID instead of name
  - [X] Console User Inerface
  - [X] Project import/export
  - [X] Initial working implementation
@@ -37,24 +36,24 @@ In order to effectively manage projects within an organization, details about ea
 ## Structure
 The files are structured as follows:
  - Projects
-   - Project Name
+   - Project UUID
      - *header.inf*
      - Contributions
-       - Contribution Name
+       - Contribution UUID
          - *contributors.csv*
          - *info.inf*
          - *progress.csv*
      - Contributors
-       - Contributor Name
+       - Contributor UUID
          - *data.csv*
          - *info.inf*
 
-This allows contributors and contributions to co-exist, and 'see' eachother
+This allows contributors and contributions to co-exist, and 'see' eachother, and using UUIDs enables changing names without creating issues
 ### Projects
  A project contains various information:
- - Header
- - Contributions
- - Contributors
+ - [Header](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/project.py)
+ - [Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contribution.py)
+ - [Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contributor.py)
 ### [Project Header](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/project.py)
  - Name
  - Description/goal of project
@@ -68,27 +67,29 @@ This allows contributors and contributions to co-exist, and 'see' eachother
    - Number of contributors
 ### [Project Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contribution.py)
  - Name
- - Creation Date
- - Contribution Number - 01, 02, 03...
  - Description/goal of contribution
  - Contribution lead/originator
  - Version increase - #.#.#
- - Current progress (%)
- - Contribution UUID
  - Contributors - list of contributors
+ - Progress - list of progress increase and date
  - Generated:
-   - Time invested (total) - automatic from contributor data
-   - Money invested (total) - automatic from contributor data
+   - Creation Date (modifiable)
+   - Contribution UUID
+   - Current progress (%)
+   - Contribution Number(1, 2, ...) - from project contributions (modifiable)
+   - Time invested (total) - from contributor data
+   - Money invested (total) - from contributor data
 ### [Project Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contributor.py)
  - Name
- - Date began project work
  - URL
- - Contributor UUID
  - Additions
    - Hours
    - Date
    - Description of addition
    - Contribution UUID
+ - Generated
+   - Date began working on project (modifiable)
+   - Contributor UUID
       
 ## Installation
 Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported, although there is no windows-only code.

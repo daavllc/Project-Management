@@ -1,3 +1,6 @@
+# Project-Management.cui.cProject - CUI implementation of projects
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
 
 import datetime
 import os

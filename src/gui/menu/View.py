@@ -1,3 +1,7 @@
+# Project-Management.gui.menu.View - GUI View menu
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
+
 import dearpygui.dearpygui as dpg
 
 class View:

@@ -1,6 +1,6 @@
-# Author: DAAV, LLC (https://github.com/daavofficial)
+# Project-Management.interface - Start UI based on user input
+# Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
-# License: GPLv3
 
 from enum import Enum, auto
 import os

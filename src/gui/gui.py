@@ -1,3 +1,6 @@
+# Project-Management.gui.gui - Initialize dearpygui and launch the gui
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
 
 import logging
 

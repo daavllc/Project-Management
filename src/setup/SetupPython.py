@@ -1,3 +1,7 @@
+# Project-Management.setup.SetupPython - Checks python version and prompts for package install
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
+
 import sys
 import subprocess
 import importlib.util as importlib_util

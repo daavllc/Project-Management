@@ -1,15 +1,13 @@
-# Author: DAAV, LLC (https://github.com/daavofficial)
+# Project-Management.base_types.contributor - Implementation of Project Contributor
+# Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
-# License: GPLv3
-###########################
-#
-# Contributor:
-#  Name, date, URL, UUID
-#  Additions: [hours, date, what they added, contribution uuid]
+
 import csv
 import datetime
 import os
 import uuid
+
+import config.config as config
 
 if __name__ == "__main__":
     exit(-1)
@@ -22,7 +20,10 @@ class Contributor:
             'url' : url,          # Contributor URL
             'uuid' : uuid.uuid4() # Contributor UUID -> don't touch
         }
-        self.Additions = {} # hours, dates, what was added, what contribution
+
+        self.Additions = [] # hours, dates, what was added, what contribution
+
+        self.LoadedInfo = False
 
     # ---============================================================---
     #               Operation overloads
@@ -36,7 +37,7 @@ class Contributor:
         return retr
 
     def __len__(self) -> int:
-        return int(len(self.Additions) / 4)
+        return len(self.Additions)
 
     # ---============================================================---
     #               self.Info get/set
@@ -73,70 +74,54 @@ class Contributor:
     #               Helpers
     # ---============================================================---
     def Push(self, hours: float, date: datetime.date, description: str, contribution: uuid.UUID) -> None:
-        val = self.__len__()
-        self.Additions[f'hours{val}'] = hours
-        self.Additions[f'date{val}'] = date
-        self.Additions[f'desc{val}'] = description
-        self.Additions[f'cont{val}'] = contribution
+        self.Additions.append([hours, date, description, contribution])
 
-    def View(self) -> dict:
+    def View(self) -> list[list[float, datetime.date, str, uuid.UUID]]:
         return self.Additions
 
     def GetFirstDate(self) -> datetime.date:
-        return self.Additions.get('date0', None)
+        return self.Additions[0][1]
 
     def GetLastDate(self) -> datetime.date:
-        val = self.__len__() - 1
-        return self.Additions.get(f'date{val}', None)
+        self.Additions[-1][1]
 
-    def GetFirst(self) -> list[float, datetime.date, str]:
-        return self.GetAddition(0)
+    def GetFirst(self) -> list[float, datetime.date, str, uuid.UUID]:
+        self.Additions[0]
     
-    def GetLatest(self) -> list[float, datetime.date, str]:
-        return self.GetAddition(self.__len__() - 1)
+    def GetLatest(self) -> list[float, datetime.date, str, uuid.UUID]:
+        self.Additions[-1]
 
     def GetTotalHours(self) -> float:
         return sum(self.GetHours())
 
     def GetHours(self) -> list[float]:
-        return [v for k, v in self.Additions.items() if k.startswith('hours')]
+        return [a[0] for a in self.Additions]
 
     def GetDates(self) -> list[datetime.date]:
-        return [v for k, v in self.Additions.items() if k.startswith('date')]
+        return [a[1] for a in self.Additions]
 
     def GetDescriptions(self) -> list[str]:
-        return [v for k, v in self.Additions.items() if k.startswith('desc')]
+        return [a[2] for a in self.Additions]
 
     def GetWorkedContributions(self) -> list[uuid.UUID]: # returns list of unique contribution uuids
-        return list(set([v for k, v in self.Additions.items() if k.startswith('cont')]))
+        return list(set([a[3] for a in self.Additions]))
 
     def GetContributionInfo(self, cID: uuid.UUID) -> list[float, datetime.date, str]: # Returns list of data for the supplied contribution
-        # if key starts with 'cont' and value == cID, append int('cont###'[4:])
-        indexes = list([int(k[4:]) for k, v in self.Additions.items() if k.startswith('cont') and v == cID])
-        info = [[],[],[]]
-        for index in indexes:
-            info[0].append(self.Additions.get(f'hours{index}', None))
-            info[1].append(self.Additions.get(f'date{index}', None))
-            info[2].append(self.Additions.get(f'desc{index}', None))
-        if len(info[0]) == 0:
-            return [ None, None, None ]
-        return info
+        indexes = list([a[3] for a in self.Additions if a[3] == cID])
+        return [self.Additions[index] for index in indexes]
 
-    def GetContributionHours(self, cID: uuid.UUID) -> float:
+    def GetTotalContributionHours(self, cID: uuid.UUID) -> float:
         info = self.GetContributionInfo(cID)
         return sum(info[0])
 
-    def GetAddition(self, index: int) -> list[float, datetime.date, str, uuid.UUID]: # Returns list of data by addition 'index'
-        return [ self.Additions.get(f'hours{index}', None), self.Additions.get(f'date{index}', None), self.Additions.get(f'desc{index}', None), self.Additions.get(f'cont{index}', None) ]
+    def GetAddition(self, index: int) -> list[float, datetime.date, str, uuid.UUID]: # Returns list of data by index
+        return self.Additions[index]
 
     # ---============================================================---
     #               Serialization
     # ---============================================================---
-    def Export(self, path: str) -> None:
-        if not os.path.exists(path):
-            os.mkdir(path)
-
-        path = f"{path}/{self.GetName()}"
+    def Export(self) -> None: # path expects contributors folder ex: projects/name/contributors
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{self.GetUUIDStr()}"
         if not os.path.exists(path):
             os.mkdir(path)
 
@@ -148,10 +133,25 @@ class Contributor:
         with open(f"{path}/data.csv", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for index in range(self.__len__()):
-                writer.writerow(self.GetAddition(index))
+                writer.writerow(self.Additions[index])
 
-    def Import(self, path: str, name: str) -> None:
-        path = f"{path}/{name}"
+    def Import(self, filename: str) -> None:
+        if not self.LoadedInfo:
+            self.LoadInfo(filename)
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{filename}"
+        with open(f"{path}/data.csv", 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f, delimiter=' ', quotechar='|')
+
+            for row in reader:
+                hours = float(row[0])
+                date = row[1].split('-')
+                date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+                desc = row[2]
+                cUID = uuid.UUID(row[3])
+                self.Push(hours, date, desc, cUID)
+
+    def LoadInfo(self, filename: str) -> None:
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{filename}"
         with open(f"{path}/info.inf", 'r') as f:
             lines = f.readlines()
             self.SetName(lines[0].strip())
@@ -159,16 +159,6 @@ class Contributor:
             self.SetDate(datetime.date(int(date[0]), int(date[1]), int(date[2])))
             self.SetURL( lines[2].strip())
             self.SetUUID(lines[3].strip())
-        with open(f"{path}/data.csv", 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f, delimiter=' ', quotechar='|')
-
-            index = 0
-            for row in reader:
-                self.Additions[f'hours{index}'] = float(row[0])
-                date = row[1].split('-')
-                self.Additions[f'date{index}'] = datetime.date(int(date[0]), int(date[1]), int(date[2]))
-                self.Additions[f'desc{index}'] = row[2]
-                self.Additions[f'cont{index}'] = uuid.UUID(row[3])
-                index += 1
+        self.LoadedInfo = True
 
 

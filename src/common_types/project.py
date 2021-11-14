@@ -1,8 +1,6 @@
-# Author: DAAV, LLC (https://github.com/daavofficial)
+# Project-Management.base_types.project - Implementation of Project header
+# Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
-# License: GPLv3
-if __name__ == "__main__":
-    exit(-1)
 
 import csv
 import os
@@ -14,6 +12,9 @@ from .contribution import Contribution
 from .contributor import Contributor
 import config.config as config
 
+if __name__ == "__main__":
+    exit(-1)
+
 class Project:
     def __init__(self, name: str = 'None', date: datetime.date = datetime.datetime.now().date(), desc: str = 'None', lead: str = 'None', version: Version = 'None'):
         self.Info = {
@@ -24,6 +25,7 @@ class Project:
             'version' : version,
             'uuid' : uuid.uuid4()
         }
+        self.LoadedHeader = False
 
     # ---============================================================---
     #               Operation overloads
@@ -86,6 +88,9 @@ class Project:
     # ---============================================================---
     #               Helpers
     # ---============================================================---
+    def AddContribution(self) -> Contribution:
+        ctb = Contribution()
+        ctb.Export(f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}")
     def GetContributions(self) -> list[str]:
         path = config.PATH_CURRENT_PROJECT + "/" + config.FOLDER_CONTRIBUTIONS
 
@@ -117,8 +122,13 @@ class Project:
     # ---============================================================---
     #               Serialization
     # ---============================================================---
-    def Export(self, path: str) -> None:
-        if not os.path.exists(path): # path is config.PATH_CURRENT_PROJECT, ex: Projects/Name
+    def Export(self) -> None:
+        path = config.PATH_ROOT
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        path = f"{path}/{self.GetUUIDStr()}"
+        if not os.path.exists(path):
             os.mkdir(path)
 
         with open(f"{path}/header.inf", 'w') as f:
@@ -134,9 +144,14 @@ class Project:
         if not os.path.exists(f"{path}/{config.FOLDER_CONTRIBUTORS}"):
             os.mkdir(f"{path}/{config.FOLDER_CONTRIBUTORS}")
 
-    def Import(self, path: str, name: str) -> None:
-        path = path + "/" + name
+    def Import(self, filename: str) -> None:
+        path = config.PATH_ROOT
+        if not self.LoadedHeader:
+            self.LoadHeader(filename)
+        config.PATH_CURRENT_PROJECT = f"{path}/filename"
 
+    def LoadHeader(self, filename: str) -> None:
+        path = f"{config.PATH_ROOT}/{filename}"
         with open(f"{path}/header.inf", 'r') as f:
             lines = f.readlines()
             self.SetName(lines[0].strip())
@@ -146,5 +161,4 @@ class Project:
             self.SetLead(lines[3].strip())
             self.SetVersion(Version(lines[4].strip()))
             self.SetUUID(lines[5].strip())
-
-        config.PATH_CURRENT_PROJECT = path
+        self.LoadedHeader = True

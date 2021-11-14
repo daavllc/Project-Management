@@ -1,3 +1,7 @@
+# Project-Management.setup.CheckPython - Check for requirements and install if not found
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
+
 import subprocess
 import pkg_resources
 

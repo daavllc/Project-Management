@@ -1,3 +1,6 @@
+# Project-Management.cui.cContributor - CUI implementation of project contributor
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
 
 import datetime
 

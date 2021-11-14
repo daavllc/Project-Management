@@ -1,3 +1,7 @@
+# Project-Management.gui.logger - helper for logging
+# Copyright (C) 2021  DAAV, LLC
+# Language: Python 3.10
+
 import logging
 
 class Logger:

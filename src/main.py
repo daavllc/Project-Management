@@ -13,7 +13,8 @@
 # Language: Python 3.10
 # License: GPLv3
 ## Project-Management
-# Easy to use graphical application for managing projects
+# Easy to use GUI/CUI for managing projects
+# Copyright (C) 2021  DAAV, LLC
 ##########################################################
 # Project Lead: Anonoei (https://github.com/Anonoei)
 
@@ -25,7 +26,7 @@ import interface
 import config.config as config
 
 def main():
-    parser = argparse.ArgumentParser(add_help=True, description="Easy to use graphical application for managing projects")
+    parser = argparse.ArgumentParser(add_help=True, description="Easy to use GUI/CUI for managing projects")
     parser.add_argument("-UI", help="specify user interface to use", choices=['CUI', 'GUI'])
     parser.add_argument("-t", "--testing", help="use testing paths", action="store_true")
     print("  ____   _____   ______________  _______   _        ___   _     _ ___  _____   ____     ___________ ")
@@ -36,7 +37,7 @@ def main():
     print(" | |    | | \ \| |_  | | | |   | | | |    | | \/ / | |   \ \ \ \ |___  |    | | | \__/ | |  \ \ |   ")
     print(" | |    | |  \ | \ \_/ / | |__/ /  | |    | | / /  | |   |\ \ \  |   | |___/ /| |__    | |__ \  |   ")
     print(" |_|    |_|   \_\_\___/  \_____/   |_|    |_|/_/   |_|   |_\_\ \_|   |_|____/ |____|   |____| \_|   ")
-    print(f" {config.VERSION}, made by 'DAAV, LLC' developers.\n")
+    print(f" Copyright (C) 2021 DAAV, LLC - {config.VERSION}\n")
     args = parser.parse_args()
     if args.testing:
         print("Using testing paths")
