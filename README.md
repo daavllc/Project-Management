@@ -13,10 +13,15 @@ In order to effectively manage projects within an organization, details about ea
 ----
 
 ## Current status/roadmap:
- - [ ] External integrations?
- - [ ] Search for projects
- - [ ] One-click start/end/pause timer for contributions
- - [ ] Polished Graphical User Interface (dearpygui)
+ - [ ] Profit (just kidding it's FOSS, always)
+ - [ ] (Possible) External integrations?
+ - [ ] (Possible) Web UI
+ - [ ] Many, many performance optimizations to support hundreds(?) of projects/contributions/contributors
+ - [ ] Other quality-of-life additions
+ - [ ] Search for projects/contributions/contributors
+ - [ ] Initial documentation
+ - [ ] Polished Graphical User Interface (dearpygui)
+ - [ ] Console User Inerface
  - [X] GUI Project editor
  - [X] GUI Contribution editor
  - [X] GUI Contributor editor
@@ -24,17 +29,16 @@ In order to effectively manage projects within an organization, details about ea
  - [X] GUI Contribution viewer
  - [X] GUI Contributor viewer
  - [X] Get data by UUID instead of name
- - [X] Console User Inerface
- - [X] Project import/export
  - [X] Initial working implementation
- - [X] API for accessing each class and it’s data
+ - [X] Project import/export
+ - [X] Interface for accessing each class and it’s data
  - [X] Project Header class
  - [X] Contribution class
  - [X] Contributor class
 
 ----
-## Structure
-The files are structured as follows:
+## File Structure
+Project files are structured as follows:
  - Projects
    - Project UUID
      - *header.inf*
@@ -48,24 +52,24 @@ The files are structured as follows:
          - *data.csv*
          - *info.inf*
 
-This allows contributors and contributions to co-exist, and 'see' eachother, and using UUIDs enables changing names without creating issues
+This structure was chosen because contributors are a subset of the project, not just the contribution. However, each contribution keeps track of it's contributors, and for a contributor to 'Push' an addition a contribution must be supplied.
 ### Projects
  A project contains various information:
- - [Header](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/project.py)
- - [Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contribution.py)
- - [Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contributor.py)
-### [Project Header](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/project.py)
+ - [Header](https://github.com/daavofficial/Project-Management/blob/main/src/objects/project.py)
+ - [Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/objects/contribution.py)
+ - [Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/objects/contributor.py)
+### [Project Header](https://github.com/daavofficial/Project-Management/blob/main/src/objects/project.py)
  - Name
  - Description/goal of project
- - Creation Date
  - Project lead/originator
- - Version - Release.Major.Minor - #.#.#
  - Generated:
+   - Creation Date (modifiable)
+   - Version - Release.Major.Minor - #.#.# - from contribution version increase
    - Time invested (total) - automatic from contribution data
    - Money Invested (total) - automatic from contribution data
-   - Number of contributions
-   - Number of contributors
-### [Project Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contribution.py)
+   - Number of contributions - from folder
+   - Number of contributors - from folder
+### [Project Contributions](https://github.com/daavofficial/Project-Management/blob/main/src/objects/contribution.py)
  - Name
  - Description/goal of contribution
  - Contribution lead/originator
@@ -79,7 +83,7 @@ This allows contributors and contributions to co-exist, and 'see' eachother, and
    - Contribution Number(1, 2, ...) - from project contributions (modifiable)
    - Time invested (total) - from contributor data
    - Money invested (total) - from contributor data
-### [Project Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/common_types/contributor.py)
+### [Project Contributors](https://github.com/daavofficial/Project-Management/blob/main/src/objects/contributor.py)
  - Name
  - URL
  - Additions
