@@ -2,39 +2,34 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import logging
-
 import dearpygui.dearpygui as dpg
 
-from gui.logger import Logger
+import helpers as hp
 from gui.menu.menu import Menu
 from gui.windows.windows import Windows
 
 import config.config as config
 
 class GUI:
-    def __init__(self):
-        self.parent = None
-
-    def Launch(self, parent):
-        self.parent = parent
+    def Launch(self):
         print("Launching GUI...")
         self._Start()
 
     def _Start(self):
         app = Application()
-
-        app.uiSetup()
-        app.uiRuntime()
-        app.uiShutdown()
+        app.Run()
 
 class Application:
     def __init__(self):
         self.Width = 1280
         self.Height = 720
-        self.selected = None
 
-        self.log = Logger("PM")
+        self.log = hp.Logger("PM.GUI", "gui.log")
+
+    def Run(self):
+        self.Setup()
+        self.Runtime()
+        self.Shutdown()
 
     def SaveInit(self):
         dpg.save_init_file("dpg.ini")
@@ -44,7 +39,7 @@ class Application:
         self.log.debug("Reloading...")
         exit(-3)
 
-    def uiSetup(self):
+    def Setup(self):
         self.log.debug("Setting up context...")
         dpg.create_context()
         dpg.configure_app(docking=True, docking_space=True)
@@ -52,18 +47,18 @@ class Application:
         dpg.create_viewport(title=f"Project Management {config.VERSION}", width=self.Width, height=self.Height, vsync=True, clear_color=[1, 0, 1, 1.0])
         dpg.setup_dearpygui()
 
-    def uiRuntime(self):
+    def Runtime(self):
         self.log.debug("Starting Runloop...")
-        def Run():
-            dpg.show_viewport()
-            dpg.set_primary_window("MainWindow", True)
-            while dpg.is_dearpygui_running():
-                dpg.render_dearpygui_frame()
         self.Menu = Menu(self)
-        with dpg.window(id="MainWindow", width=1280, height=720):
-            self.Window = Windows(self)
-        Run()
+        self.Windows = Windows(self)
 
-    def uiShutdown(self):
+        dpg.set_primary_window("MainWindow", True)
+        dpg.show_viewport()
+        dpg.start_dearpygui()
+        
+        #while dpg.is_dearpygui_running(): # Runloop
+        #    dpg.render_dearpygui_frame()
+
+    def Shutdown(self):
         self.log.debug("Shutting down...")
         dpg.destroy_context()

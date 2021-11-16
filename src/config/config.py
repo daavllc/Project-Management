@@ -2,13 +2,12 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-PATH_ROOT = "../Projects" # This is the root path: root/Projects/Project Name/*
-TESTING_PATH_ROOT = "../t_Projects"
-
-VERSION = "v0.1.2"
+# -- DO NOT EDIT -- #
+PATH_ROOT = ""
+VERSION = "v0.2.0"
+# ----------------- #
 
 PATH_CURRENT_PROJECT = None
+FOLDER_PROJECTS = "Projects"
 FOLDER_CONTRIBUTIONS = "Contributions"
 FOLDER_CONTRIBUTORS = "Contributors"
-
-UUID_CURRENT_CONTRIBUTION = None

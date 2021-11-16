@@ -2,27 +2,55 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import logging
 import os
 
 import cui.utils as utils
-from cui.cProject import cProject
+import helpers as hp
+from cui.console.console import Console
 import config.config as config
 
 class CUI:
-    def __init__(self):
-        self.parent = None
-
-    def Launch(self, parent):
-        self.parent = parent
+    def Launch(self):
         print("Launching CUI...")
         self._Start()
 
     def _Start(self):
+        app = Application()
+        app.Run()
+
+class Application:
+    def __init__(self):
+        self.log = hp.Logger("PM.CUI", "cui.log", writeConsole=False)
+        self.Width = 180
+        self.Height = 45
+
+    def Run(self):
+        self.Setup()
+        self.Runtime()
+        self.Shutdown()
+
+    def Setup(self):
+        utils.SetConsoleSize(self.Width, self.Height)
+
+    def Runtime(self):
+        self.Console = Console(self)
+
+        while True:
+            self.Console.Refresh()
+
+    def Shutdown(self):
+        return
+
+    def Reload(self):
+        self.log.debug("Reloading...")
+        exit(-1)
+
+    def Old(self):
         cPrj = cProject()
         projects = []
         for file in os.listdir(config.PATH_ROOT):
             if os.path.isdir(config.PATH_ROOT + "/" + file):
+                prj = Project()
                 projects.append(file)
 
         while True:

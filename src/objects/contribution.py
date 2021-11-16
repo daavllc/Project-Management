@@ -1,12 +1,12 @@
-# Project-Management.base_types.contribution - Implementation of Project Contribution
+# Project-Management.objects.contribution - Implementation of Project Contribution
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
 import csv
 import os
-import datetime
 import uuid
 
+import helpers as hp
 from .base_types.version import Version
 from .contributor import Contributor
 import config.config as config
@@ -14,7 +14,8 @@ import config.config as config
 if __name__ == "__main__":
     exit(-1)
 class Contribution:
-    def __init__(self, name: str = 'None', date: datetime.date = datetime.datetime.now().date(), number: int = 'None', desc: str = 'None', lead: str = 'None', change: Version = 'None'):
+    def __init__(self, name: str = 'None', date: hp.Date = hp.Date.Today(), number: int = 'None', desc: str = 'None', lead: str = 'None', change: Version = 'None'):
+        self.log = hp.Logger("PM.Contribution", "objects.log")
         self.Info = {
             'name' : name,         # Name of the contribution
             'date' : date,         # Contribution creation date
@@ -28,11 +29,20 @@ class Contribution:
             self.CalcNumber()
 
         self.Contributors = []
-        self.Progress = [ 0.0 ] # list of [float, datetime.date], index 0 is total progress
+        self.Progress = [ 0.0 ] # list of [float, hp.Date], index 0 is total progress
 
+        # Serialization
+        self.Files = {
+            'info' : 'info.inf',
+            'ctrs' : 'contributors.csv',
+            'progress' : 'progress.csv'
+        }
         self.LoadedInfo = False
         self.LoadedCtrs = False
         self.LoadedProgress = False
+        self.SavedInfo = False
+        self.SavedCtrs = False
+        self.SavedProgress = False
 
     # ---============================================================---
     #               Operation overloads
@@ -61,34 +71,42 @@ class Contribution:
     # ---============================================================---
     # Setters
     def SetName(self, name: str) -> None:
+        self.SavedInfo = False
         self.Info['name'] = name
 
-    def SetDate(self, date: datetime.date) -> None:
+    def SetDate(self, date: hp.Date) -> None:
+        self.SavedInfo = False
         self.Info['date'] = date
 
     def SetNumber(self, number: int) -> None:
+        self.SavedInfo = False
         self.Info['number'] = number
     def CalcNumber(self) -> None:
+        self.SavedInfo = False
         self.Info['number'] = len([f for f in os.listdir(f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}") 
                                     if os.path.isdir(f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{f}")]) + 1
 
     def SetDescription(self, desc: str) -> None:
+        self.SavedInfo = False
         self.Info['desc'] = desc
 
     def SetLead(self, contributor: str) -> None:
+        self.SavedInfo = False
         self.Info['lead'] = contributor
 
     def SetVersionChange(self, change: Version) -> None:
+        self.SavedInfo = False
         self.Info['vChange'] = change
 
     def SetUUID(self, uid: str) -> None:
+        self.SavedInfo = False
         self.Info['uuid'] = uuid.UUID(uid)
 
     # Getters
     def GetName(self) -> str:
         return self.Info.get('name')
 
-    def GetDate(self) -> datetime.date:
+    def GetDate(self) -> hp.Date:
         return self.Info.get('date')
     def GetDateStr(self) -> str:
         return str(self.GetDate())
@@ -117,12 +135,45 @@ class Contribution:
     # ---============================================================---
     #               Helpers
     # ---============================================================---
+    def GetInfoFile(self) -> str:
+        return self.Files.get('info')
+
+    def GetContributorsFile(self) -> str:
+        return self.Files.get('ctrs')
+
+    def GetProgressFile(self) -> str:
+        return self.Files.get('progress')
+
     def GetContributor(self, id: uuid.UUID) -> Contributor:
         ctr = Contributor()
         ctr.Import(str(id))
 
-    def GetContributors(self) -> list:
-        return self.Contributors
+    def GetContributors(self) -> list[Contributor]:
+        ctrs = []
+        for cID in self.Contributors:
+            ctr = Contributor()
+            ctr.Import(str(cID))
+            ctrs.append(ctr)
+        return ctrs
+
+    def GetTotalContributors(self) -> int:
+        return len(self.Contributors)
+
+    def GetTotalAdditions(self) -> int:
+        total = 0
+        for cID in self.Contributors:
+            ctr = Contributor()
+            ctr.LoadAdditions(str(cID))
+            total += ctr.GetTotalContributionAdditions(self.GetUUID())
+        return total
+
+    def GetTotalHours(self) -> float:
+        total = 0
+        for cID in self.Contributors:
+            ctr = Contributor()
+            ctr.LoadAdditions(str(cID))
+            total += ctr.GetTotalContributionHours(self.GetUUID())
+        return total
 
     def GetTotalProgress(self) -> float:
         return self.Progress[0]
@@ -130,24 +181,24 @@ class Contribution:
     def GetTotalProgressStr(self) -> str:
         return str(self.GetTotalProgress)
 
-    def GetProgress(self) -> list[list[float, datetime.date]]:
+    def GetProgress(self) -> list[list[float, hp.Date]]:
         return self.Progress[1:]
 
-    def UpdateProgress(self, increase: float, date: datetime.date) -> float:
+    def UpdateProgress(self, increase: float, date: hp.Date) -> float:
         self.Progress.append([increase, date])
         self.Progress[0] += increase
 
-    def InitContributor(self, filename: str) -> Contributor:
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}"
-        if os.path.exists(f"{path}/{filename}"):
-            ctr = Contributor()
+    def InitContributor(self, filename: str = None) -> Contributor:
+        ctr = Contributor()
+        if filename is None:
+            self.log.debug(f"Creating new contributor '{ctr.GetUUIDStr()}'")
+        else:
             ctr.Import(filename)
-        else: # This means the contributor does not exist, new contributor?
-            print(f"Creating new contributor")
-            ctr = Contributor()
+            self.log.debug(f"Imported contributor '{filename}'")
+        ctr.SaveInfo()
         return ctr
 
-    def Push(self, ctrUUID: uuid.UUID, hours: float, date: datetime.date, description: str) -> None:
+    def Push(self, ctrUUID: uuid.UUID, hours: float, date: hp.Date, description: str) -> None:
         ctr = self.InitContributor(ctrUUID)
         ctr.Push(hours, date, description, self.GetUUID())
         if not ctrUUID in self.Contributors:
@@ -157,14 +208,25 @@ class Contribution:
     # ---============================================================---
     #               Serialization
     # ---============================================================---
-    def Export(self) -> None: # path expects contributions folder ex: projects/name/contributions
+    # Export
+    def Export(self, force: bool = False) -> None:
         path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}"
 
         path = f"{path}/{self.GetUUIDStr()}"
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.mkdir(path) # Projects/<Project UUID>/Contributions/<Contribution UUID>
 
-        with open(f"{path}/info.inf", 'w') as f:
+        self.SaveInfo(force)
+        self.SaveContributors(force)
+        self.SaveProgress(force)
+
+    def SaveInfo(self, force: bool = False) -> None:
+        file = self.GetInfoFile()
+        if self.SavedInfo and not force:
+            self.log.debug(f"Skipped saving {file}")
+            return
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{self.GetUUIDStr()}"
+        with open(f"{path}/{file}", 'w') as f:
             f.write(self.GetName() + "\n")
             f.write(self.GetDateStr() + "\n")
             f.write(self.GetNumberStr() + "\n")
@@ -172,54 +234,97 @@ class Contribution:
             f.write(self.GetLead() + "\n")
             f.write(self.GetVersionChangeStr() + "\n")
             f.write(self.GetUUIDStr() + "\n")
+        self.log.debug(f"Saved {file}")
+        self.SavedInfo = True
 
-        with open(f"{path}/contributors.csv", "w", newline='', encoding='utf-8') as f:
+    def SaveContributors(self, force: bool = False):
+        file = self.GetContributorsFile()
+        if self.SavedCtrs and not force:
+            self.log.debug(f"Skipped saving {file}")
+            return
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{self.GetUUIDStr()}"
+        with open(f"{path}/{file}", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for contributor in self.Contributors:
-                writer.writerow(contributor)
+            for cID in self.Contributors:
+                writer.writerow([str(cID)])
+        self.log.debug(f"Saved {file}")
+        self.SavedCtrs = True
 
-        with open(f"{path}/progress.csv", "w", newline='', encoding='utf-8') as f:
+    def SaveProgress(self, force: bool = False):
+        file = self.GetProgressFile()
+        if self.SaveProgress and not force:
+            self.log.debug(f"Skipped saving {file}")
+            return
+        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{self.GetUUIDStr()}"
+        with open(f"{path}/{file}", "w", newline='', encoding='utf-8') as f:
             writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for prog in self.GetProgress():
                 writer.writerow(prog)
+        self.log.debug(f"Saved {file}")
+        self.SavedProgress = True
 
-    def Import(self, filename: str) -> None:
-        if not self.LoadedInfo:
-            self.LoadInfo(filename)
-        if not self.LoadedCtrs:
-            self.LoadContributors(filename)
-        if not self.LoadedProgress:
-            self.LoadProgress(filename)
+    # Import
+    def Import(self, filename: str, force: bool = False) -> None:
+        self.LoadInfo(filename, force)
+        self.LoadContributors(filename, force)
+        self.LoadProgress(filename, force)
 
-    def LoadInfo(self, filename: str) -> None:
+    def LoadInfo(self, filename: str, force: bool = False) -> None:
+        file = self.GetInfoFile()
+        if self.LoadedInfo and not force:
+            self.log.debug(f"Skipped loading {file}")
+            return
         path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{filename}"
-        with open(f"{path}/info.inf", 'r') as f:
+        if not os.path.exists(f"{path}/{file}"):
+            self.LoadedInfo = True
+            self.log.debug(f"No {file} file to load")
+            return
+        with open(f"{path}/{file}", 'r') as f:
             lines = f.readlines()
             self.SetName(lines[0].strip())
             date = lines[1].strip().split('-')
-            self.SetDate(datetime.date(int(date[0]), int(date[1]), int(date[2])))
+            self.SetDate(hp.Date.Set(int(date[0]), int(date[1]), int(date[2])))
             self.SetNumber(int(lines[2].strip()))
             self.SetDescription(lines[3].strip())
             self.SetLead(lines[4].strip())
             self.SetVersionChange(Version(lines[5].strip()))
             self.SetUUID(lines[6].strip())
+        self.log.debug(f"Loaded {file}")
         self.LoadedInfo = True
 
-    def LoadContributors(self, filename: str) -> None:
+    def LoadContributors(self, filename: str, force: bool = False) -> None:
+        file = self.GetContributorsFile()
+        if self.LoadedCtrs and not force:
+            self.log.debug(f"Skipped loading {file}")
+            return
         path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{filename}"
-        with open(f"{path}/contributors.csv", 'r', newline='', encoding='utf-8') as f:
+        if not os.path.exists(f"{path}/{file}"):
+            self.LoadedCtrs = True
+            self.log.debug(f"No {file} file to load")
+            return
+        with open(f"{path}/{file}", 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
             for row in reader:
-                self.AddContributor(row[0], row[1])
+                self.Contributors.append(uuid.UUID(row[0]))
+        self.log.debug(f"Loaded {file}")
         self.LoadedCtrs = True
 
-    def LoadProgress(self, filename: str) -> None:
+    def LoadProgress(self, filename: str, force: bool = False) -> None:
+        file = self.GetProgressFile()
+        if self.LoadedProgress and not force:
+            self.log.debug(f"Skipped loading {file}")
+            return
         path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{filename}"
-        with open(f"{path}/progress.csv", 'r', newline='', encoding='utf-8') as f:
+        if not os.path.exists(f"{path}/{file}"):
+            self.LoadedProgress = True
+            self.log.debug(f"No {file} file to load")
+            return
+        with open(f"{path}/{file}", 'r', newline='', encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=' ', quotechar='|')
             for row in reader:
                 progress = float(row[0])
-                date = row[1].split('-')
-                date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+                year, month, day = row[1].split('-')
+                date = hp.Date.Set(int(year), int(month), int(day))
                 self.UpdateProgress(progress, date)
+        self.log.debug(f"Loaded {file}")
         self.LoadedProgress = True

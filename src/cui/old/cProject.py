@@ -2,11 +2,11 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import datetime
+import datetime as dt
 import os
 
-from common_types.base_types.version import Version
-from common_types.project import Project
+from objects.base_types.version import Version
+from objects.project import Project
 import config.config as config
 
 from cui.cContribution import cContribution
@@ -79,8 +79,8 @@ class cProject:
                 print(f"Exported '{self.prj.GetName()}'")
             case ['import']:
                 projects = []
-                for file in os.listdir(config.PATH_ROOT):
-                    if os.path.isdir(config.PATH_ROOT + "/" + file):
+                for file in os.listdir(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}"):
+                    if os.path.isdir(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}/{file}"):
                         projects.append(file)
 
                 if len(projects) == 0:
@@ -127,7 +127,7 @@ class cProject:
                 utils.Pause()
 
     def ViewInfo(self):
-        print(f"\tCreated on {self.prj.GetDateStr()} ({(datetime.datetime.now().date() - self.prj.GetDate()).days} days ago)")
+        print(f"\tCreated on {self.prj.GetDateStr()} ({(dt.date.today() - self.prj.GetDate()).days} days ago)")
         print(f"\tProject Lead: {self.prj.GetLead()}, Version: {self.prj.GetVersionStr()}")
         print(f"\tDescription: {self.prj.GetDescription()}")
 
@@ -162,7 +162,7 @@ class cProject:
                             break
                         try:
                             uinput = uinput.split('-')
-                            uinput = datetime.date(int(uinput[0]), int(uinput[1]), int(uinput[2]))
+                            uinput = dt.date(int(uinput[0]), int(uinput[1]), int(uinput[2]))
                             self.prj.SetDate(uinput)
                             bSaved = False
                             break

@@ -19,7 +19,6 @@
 # Project Lead: Anonoei (https://github.com/Anonoei)
 
 import argparse
-import datetime
 import sys
 
 import interface
@@ -28,7 +27,6 @@ import config.config as config
 def main():
     parser = argparse.ArgumentParser(add_help=True, description="Easy to use GUI/CUI for managing projects")
     parser.add_argument("-UI", help="specify user interface to use", choices=['CUI', 'GUI'])
-    parser.add_argument("-t", "--testing", help="use testing paths", action="store_true")
     print("  ____   _____   ______________  _______   _        ___   _     _ ___  _____   ____     ___________ ")
     print(" |  __ \|  __ \ / |__   _/  __ \|__   _/  | \      / _ \ | \   | | _ \/  __ \ |  __|   /  __|_   _/ ")
     print(" | |  \ \ |  \ |  / \| | | |  \ \  | |    |  \    / / \ \|  \  | |/ \ \ /  \_\| |\    /  | \  | |   ")
@@ -39,9 +37,7 @@ def main():
     print(" |_|    |_|   \_\_\___/  \_____/   |_|    |_|/_/   |_|   |_\_\ \_|   |_|____/ |____|   |____| \_|   ")
     print(f" Copyright (C) 2021 DAAV, LLC - {config.VERSION}\n")
     args = parser.parse_args()
-    if args.testing:
-        print("Using testing paths")
-        config.PATH_ROOT = config.TESTING_PATH_ROOT
+    config.PATH_ROOT = __file__[:-12].replace('\\', '/')
 
     if args.UI == "CUI":
         LaunchCUI(args)

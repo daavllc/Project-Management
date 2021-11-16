@@ -2,7 +2,7 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-from enum import Enum, auto
+from enum import Enum
 import os
 
 from cui.cui import CUI
@@ -20,6 +20,6 @@ class UI:
 
     def Start(self):
         self.inst = self.inst.value
-        if not os.path.exists(config.PATH_ROOT):
-            os.mkdir(config.PATH_ROOT)
-        self.inst.Launch(self) # pass in UI as parent
+        if not os.path.exists(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}"):
+            os.mkdir(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}")
+        self.inst.Launch() # pass in UI as parent

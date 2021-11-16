@@ -2,45 +2,28 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import datetime
 import os
 import dearpygui.dearpygui as dpg
 
-from common_types.contribution import Contribution
-from common_types.contributor import Contributor
-from common_types.base_types.version import Version
+from objects.contribution import Contribution
+from objects.contributor import Contributor
+from objects.base_types.version import Version
 
-from gui.logger import Logger
+import helpers as hp
 import config.config as config
-
-from .ContributionExplorer import ContributionExplorer
-from .ContributorExplorer import ContributorExplorer
-
 
 class PropertyEditor:
     def __init__(self, parent):
         self.parent = parent # gui.gui.ProjectProperty
-        self.log = Logger("PM.Window.PropertyEditor")
+        self.log = hp.Logger("PM.GUI.Windows.PropertyEditor", "gui.log")
         self.editor = None
 
-        self.Window = "PropertyEditor"
-        self.Pre = "pE"
+        self.Window: str = self.parent.Window
+        self.Pre: str = "pptE"
 
-        with dpg.window(tag=self.Window, label="Property Editor", no_close=True):
-            self.Refresh()
+        self.Refresh()
 
     def CheckProperty(self):
-        if self.editor is None:
-            try:
-                dpg.delete_item(f"{self.Pre}_NoProperty")
-            except SystemError:
-                pass
-        else:
-            for name in self.editor.GetTags():
-                try:
-                    dpg.delete_item(f"{self.Pre}{name}")
-                except SystemError:
-                    pass
         if type(self.parent.property) == Contribution:
             self.editor = ContributionEditor(self)
         elif type(self.parent.property) == Contributor:
@@ -49,10 +32,15 @@ class PropertyEditor:
             self.editor = None
 
     def DrawProperty(self):
-        if self.editor is None:
-            dpg.add_text(parent=self.Window, default_value="No project property selected", tag=f"{self.Pre}_NoProperty")
-            return
-        self.editor.Refresh(self.parent.property)
+        try:
+            dpg.delete_item(f"{self.Pre}_ProjectBody")
+        except SystemError:
+            pass
+        with dpg.group(parent=self.Window, tag=f"{self.Pre}_ProjectBody"):
+            if self.editor is None:
+                dpg.add_text(tag=f"{self.Pre}_NoPropertySelected", default_value="No project property selected")
+                return
+            self.editor.Refresh(self.parent.property)
 
     def Refresh(self):
         self.CheckProperty()
@@ -91,17 +79,8 @@ class ContributionEditor:
         self.Window = parent.Window
         self.Pre = parent.Pre
         self.prop = None
-    
-    def GetTags(self) -> list[str]:
-        return ["_HGContribution", "_HGNameInput", "_HGNumber", "_Group1",
-                "_HGDate", "_HGDateInput", "_HGVersion", "_HGVersionInput", "_HGLead", "_HGLeadInput", "_Group2"]
 
     def Draw(self):
-        for name in self.GetTags():
-            try:
-                dpg.delete_item(f"{self.Pre}{name}")
-            except SystemError:
-                pass
         with dpg.group(parent=self.Window, tag=f"{self.Pre}_Group1", horizontal=True):
             dpg.add_text(default_value="Contribution:", tag=f"{self.Pre}_HGContribution")
             dpg.add_input_text(tag=f"{self.Pre}_HGNameInput", hint=self.prop.GetName(), width=150, on_enter=True, callback=self.SetName)
@@ -124,7 +103,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
             self.prop.SetDate(date)
             self.prop.Export()
             self.parent.Edited()
@@ -158,17 +137,8 @@ class ContributorEditor:
         self.Window = parent.Window
         self.Pre = parent.Pre
         self.prop = None
-    
-    def GetTags(self) -> list[str]:
-        return ["_HGContributor", "_HGNameInput", "_HGurl", "_HGUrlInput", "_Group1", 
-                "_HGDate", "_HGDateInput", "_Group2"]
 
     def Draw(self):
-        for name in self.GetTags():
-            try:
-                dpg.delete_item(f"{self.Pre}{name}")
-            except SystemError:
-                pass
         with dpg.group(parent=self.Window, tag=f"{self.Pre}_Group1", horizontal=True):
             dpg.add_text(default_value="Contributor:", tag=f"{self.Pre}_HGContributor")
             dpg.add_input_text(tag=f"{self.Pre}_HGNameInput", hint=self.prop.GetName(), width=150, on_enter=True, callback=self.SetName)
@@ -192,7 +162,7 @@ class ContributorEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
             self.prop.SetDate(date)
             self.prop.Export()
             self.parent.Edited()

@@ -1,4 +1,4 @@
-# Project-Management.common_types.base_types.version - Class for easy to use version control
+# Project-Management.objects.base_types.version - Class for easy to use version control
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 

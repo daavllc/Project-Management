@@ -2,10 +2,10 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import datetime
+import datetime as dt
 
-from common_types.base_types.version import Version
-from common_types.contributor import Contributor
+from objects.base_types.version import Version
+from objects.contributor import Contributor
 import config.config as config
 
 import cui.utils as utils
@@ -45,10 +45,10 @@ class cContributor:
                     try:
                         hours = float(hours)
                         if date == "today":
-                            date = datetime.datetime.now().date()
+                            date = dt.date.today()
                         else:
                             date = date.split('-')
-                            date = datetime.date(int(date[0]), int(date[1]), int(date[2]))
+                            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
                         break
                     except ValueError:
                         print("invalid input")
@@ -80,7 +80,7 @@ class cContributor:
                 utils.Pause()
 
     def ViewInfo(self):
-        print(f"\tCreated on {self.ctr.GetDateStr()} ({(datetime.datetime.now().date() - self.ctr.GetDate()).days} days ago)")
+        print(f"\tCreated on {self.ctr.GetDateStr()} ({(dt.date.today() - self.ctr.GetDate()).days} days ago)")
         print(f"\tURL: {self.ctr.GetURL()}")
 
     def Set(self, name: str) -> None:

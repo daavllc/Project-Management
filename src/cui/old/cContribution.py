@@ -2,13 +2,13 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
-import datetime
+import datetime as dt
 
-from common_types.base_types.version import Version
-from common_types.contribution import Contribution
+from objects.base_types.version import Version
+from objects.contribution import Contribution
 import config.config as config
 
-from cui.cContributor import cContributor
+from .cContributor import cContributor
 import cui.utils as utils
 
 class cContribution:
@@ -103,7 +103,7 @@ class cContribution:
                 utils.Pause()
 
     def ViewInfo(self):
-        print(f"\tCreated on {self.ctb.GetDateStr()} ({(datetime.datetime.now().date() - self.ctb.GetDate()).days} days ago)")
+        print(f"\tCreated on {self.ctb.GetDateStr()} ({(dt.date.today() - self.ctb.GetDate()).days} days ago)")
         print(f"\tContribution Lead: {self.ctb.GetLead()}, Contribution #{self.ctb.GetNumber()}, Version change: {self.ctb.GetVersionChangeStr()}")
         print(f"\tDescription: {self.ctb.GetDescription()}")
 
@@ -134,7 +134,7 @@ class cContribution:
                             break
                         try:
                             uinput = uinput.split('-')
-                            uinput = datetime.date(int(uinput[0]), int(uinput[1]), int(uinput[2]))
+                            uinput = dt.date(int(uinput[0]), int(uinput[1]), int(uinput[2]))
                             self.ctb.SetDate(uinput)
                             bSaved = False
                             break
