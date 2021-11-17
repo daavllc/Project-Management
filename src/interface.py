@@ -22,4 +22,4 @@ class UI:
         self.inst = self.inst.value
         if not os.path.exists(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}"):
             os.mkdir(f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}")
-        self.inst.Launch() # pass in UI as parent
+        self.inst.Launch()

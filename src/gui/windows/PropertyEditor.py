@@ -2,6 +2,7 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
+import datetime as dt
 import os
 import dearpygui.dearpygui as dpg
 
@@ -103,7 +104,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.prop.SetDate(date)
             self.prop.Export()
             self.parent.Edited()
@@ -162,7 +163,7 @@ class ContributorEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.prop.SetDate(date)
             self.prop.Export()
             self.parent.Edited()

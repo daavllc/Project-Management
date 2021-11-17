@@ -2,6 +2,7 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
+import datetime as dt
 import os
 import dearpygui.dearpygui as dpg
 
@@ -50,8 +51,8 @@ class ProjectProperty:
                     dpg.add_text(tag=f"{self.Pre}.Header.Group2.ProjectVersion", default_value=f"Version: {self.parent.project.GetVersionStr()},")
                     dpg.add_text(tag=f"{self.Pre}.Header.Group2.ProjectDate", default_value="Creation date:")
                     dpg.add_input_text(tag=f"{self.Pre}.Header.Group2.DateInput", hint=self.parent.project.GetDateStr(), width=80, on_enter=True, callback=self.SetProjectDate)
-                    dpg.add_text(tag=f"{self.Pre}.Header.Group2.ProjectLead", default_value="Lead:")
-                    dpg.add_input_text(tag=f"{self.Pre}.Header.Group2.LeadInput", hint=self.parent.project.GetLead(), width=80, on_enter=True, callback=self.SetProjectLead)
+                    dpg.add_text(tag=f"{self.Pre}.Header.Group2.Lead", default_value="Lead:")
+                    dpg.add_combo(tag=f"{self.Pre}.Header.Group2.LeadCombo", width=150, default_value=self.parent.project.GetLeadName(), items=[ctr.GetName() for ctr in self.ContributorExplorer.contributors], callback=self.SetProjectLead)
                 with dpg.group(tag=f"{self.Pre}.Header.Group3", horizontal=True):
                     dpg.add_text(tag=f"{self.Pre}.Header.Group3.Description", default_value="Description:")
                     dpg.add_input_text(tag=f"{self.Pre}.Header.Group3.DescriptionInput", hint=self.parent.project.GetDescription(), width=700, on_enter=True, callback=self.SetProjectDescription)
@@ -87,6 +88,8 @@ class ProjectProperty:
         self.Refresh()
 
     def Edited(self):
+        self.ContributionExplorer.Refresh()
+        self.ContributorExplorer.Refresh()
         utils.DeleteItems(f"{self.Pre}.Body")
         self.DrawBody()
 
@@ -109,8 +112,7 @@ class ProjectProperty:
     def SetProjectDate(self, sender, app_data, user_data):
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
-            self.log.info(f"Set date to {date} from input {app_data}")
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.parent.project.SetDate(date)
             self.parent.project.Export()
             self.parent.Refresh()
@@ -120,7 +122,7 @@ class ProjectProperty:
             pass
 
     def SetProjectLead(self, sender, app_data, user_data):
-        self.parent.project.SetLead(app_data)
+        self.parent.project.SetLead(self.ContributorExplorer.GetCtr(app_data).GetUUID())
         self.parent.project.Export()
         self.parent.Refresh()
 

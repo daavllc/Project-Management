@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 import dearpygui.dearpygui as dpg
 
@@ -11,12 +12,12 @@ import gui.utils as utils
 class PushDetails:
     contributor = None
     hours: float = None
-    date: hp.Date = hp.Date.Today()
+    date: dt.date = dt.date.today()
     description: str = "Description"
 
 class ProgressDetails:
     progress: float = None
-    data = hp.Date = hp.Date.Today()
+    date: dt.date = dt.date.today()
 
 class ContributionEditor:
     def __init__(self, parent):
@@ -37,7 +38,7 @@ class ContributionEditor:
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.Date", default_value="Creation date:")
                 dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.DateInput", hint=self.parent.contribution.GetDateStr(), width=80, on_enter=True, callback=self.SetDate)
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.Lead", default_value="Lead:")
-                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.LeadInput", hint=self.parent.contribution.GetLead(), width=80, on_enter=True, callback=self.SetLead)
+                dpg.add_combo(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.Ctr", width=150, default_value=self.parent.contribution.GetLeadName(), items=[ctr.GetName() for ctr in self.parent.ContributorExplorer.contributors], callback=self.SetLead)
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.VersionChange", default_value=f"Version change: ")
                 dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.2.VersionInput", hint=self.parent.contribution.GetVersionChangeStr(), width=80, on_enter=True, callback=self.SetVersionChange)
             with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Info.3", horizontal=True):
@@ -47,7 +48,7 @@ class ContributionEditor:
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Commit", default_value="Commit:")
                 dpg.add_combo(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Ctr", width=150, items=[ctr.GetName() for ctr in self.parent.ContributorExplorer.contributors], callback=self.PushContributor)
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Hours", default_value="Hours: ")
-                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.HoursInput", default_value=0.0, width=40, min_value=0.0, speed=0.50, format='%0.1f',callback=self.PushHours)
+                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.HoursInput", default_value=0.0, width=40, min_value=0.0, speed=0.25, format='%0.2f',callback=self.PushHours)
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Date", default_value="Date:")
                 dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.DateInput", hint=f"{str(self.PushDetails.date)}", width=80, on_enter=True, callback=self.PushDate)
                 dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.DescriptionInput", hint=self.PushDetails.description, width=300, callback=self.PushDescription)
@@ -78,7 +79,7 @@ class ContributionEditor:
                     for ctr in self.parent.contribution.GetContributors():
                         with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}", label=ctr.GetName()):
                             dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Hours", default_value=f"Total hours: {ctr.GetTotalContributionHours(self.parent.contribution.GetUUID())}")
-                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.LastDate", default_value=f"Last: {ctr.GetContributionLastDate(self.parent.contribution.GetUUID())}, First: {ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} ({(ctr.GetContributionLastDate(self.parent.contribution.GetUUID()) - ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())).days} days)")
+                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.LastDate", default_value=f"Last: {ctr.GetContributionLastDate(self.parent.contribution.GetUUID())}, First: {ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} ({ctr.GetContributionLastDate(self.parent.contribution.GetUUID()) - ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} days)")
                             with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Additons", label=f"{ctr.GetTotalContributionAdditions(self.parent.contribution.GetUUID())} additions"):
                                 additions = ctr.GetContributionInfo(self.parent.contribution.GetUUID())
                                 for j in range(len(additions)):
@@ -101,7 +102,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
             self.parent.contribution.SetDate(date)
             self.parent.contribution.SaveInfo()
             self.parent.Edited()
@@ -111,7 +112,8 @@ class ContributionEditor:
             pass
 
     def SetLead(self, sender, app_data, user_data) -> None:
-        self.parent.contribution.SetLead(app_data)
+        ctr = self.parent.ContributorExplorer.GetCtr(app_data)
+        self.parent.contribution.SetLead(ctr.GetUUID())
         self.parent.contribution.SaveInfo()
         self.parent.Edited()
 
@@ -119,7 +121,8 @@ class ContributionEditor:
         try:
             self.parent.contribution.SetVersionChange(Version(app_data))
             self.parent.contribution.SaveInfo()
-            self.parent.Edited()
+            self.parent.parent.project.UpdateVersion(Version(app_data), self.parent.contribution.GetUUID())
+            self.parent.Refresh()
         except Version.Errors.InvalidInitializationArgs:
             pass
         except Version.Errors.InvalidVersionString:
@@ -157,7 +160,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
             self.PushDetails.date = date
         except IndexError:
             pass
@@ -183,7 +186,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
             self.ProgressDetails.date = date
         except IndexError:
             pass

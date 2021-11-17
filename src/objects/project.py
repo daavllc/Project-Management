@@ -2,6 +2,8 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
+import datetime as dt
+import csv
 import os
 import uuid
 
@@ -15,22 +17,25 @@ if __name__ == "__main__":
     exit(-1)
 
 class Project:
-    def __init__(self, name: str = 'None', date: hp.Date = hp.Date.Today(), desc: str = 'None', lead: str = 'None', version: Version = 'None'):
+    def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), desc: str = 'None', lead: Contributor = 'None'):
         self.log = hp.Logger("PM.Project", "objects.log")
-        self.Info = {
-            'name' : name,
-            'date' : date,
-            'desc' : desc,
-            'lead' : lead,
-            'version' : version,
+        self.Header = {
+            'name' : name, # str
+            'date' : date, # dt.date
+            'desc' : desc, # str
+            'lead' : lead, # Contributor
             'uuid' : uuid.uuid4()
         }
+        self.Version: list[list[Version, uuid.UUID]] = [Version(0, 0, 0)] # index 0 is total version
         # Serialization
         self.Files = {
-            'info' : 'header.inf'
+            'header' : 'header.inf',
+            'version' : 'versions.csv'
         }
         self.LoadedHeader = False
+        self.LoadedVersion = False
         self.SavedHeader = False
+        self.SavedVersion = True
 
     # ---============================================================---
     #               Operation overloads
@@ -45,63 +50,99 @@ class Project:
         return retr
 
     # ---============================================================---
-    #               self.Info get/Get
+    #               self.Header get/Get
     # ---============================================================---
     # Setters
     def SetName(self, name: str) -> None:
         self.SavedHeader = False
-        self.Info['name'] = name
+        self.Header['name'] = name
 
-    def SetDate(self, date: hp.Date) -> None:
+    def SetDate(self, date: dt.date) -> None:
         self.SavedHeader = False
-        self.Info['date'] = date
+        self.Header['date'] = date
 
     def SetDescription(self, desc: str) -> None:
         self.SavedHeader = False
-        self.Info['desc'] = desc
+        self.Header['desc'] = desc
 
-    def SetLead(self, lead: str) -> None:
+    def SetLead(self, cID: uuid.UUID) -> None:
         self.SavedHeader = False
-        self.Info['lead'] = lead
-
-    def SetVersion(self, version: Version) -> None:
-        self.SavedHeader = False
-        self.Info['version'] = version
+        if cID == 'None':
+            self.Header['lead'] = 'None'
+        else:
+            ctr = Contributor()
+            ctr.Import(cID)
+            self.Header['lead'] = ctr
 
     def SetUUID(self, uid: str) -> None:
         self.SavedHeader = False
-        self.Info['uuid'] = uuid.UUID(uid)
+        self.Header['uuid'] = uuid.UUID(uid)
 
     # Getters
     def GetName(self) -> str:
-        return self.Info.get('name')
+        return self.Header.get('name')
 
-    def GetDate(self) -> hp.Date:
-        return self.Info.get('date')
+    def GetDate(self) -> dt.date:
+        return self.Header.get('date')
     def GetDateStr(self) -> str:
         return str(self.GetDate())
 
     def GetDescription(self) -> str:
-        return self.Info.get('desc')
+        return self.Header.get('desc')
 
-    def GetLead(self) -> str:
-        return self.Info.get('lead')
+    def GetLead(self) -> uuid.UUID:
+        return self.Header.get('lead')
+    def GetLeadName(self) -> str:
+        lead = self.GetLead()
+        if isinstance(lead, Contributor):
+            return self.GetLead().GetName()
+        return lead
+    def GetLeadUUID(self) -> uuid.UUID:
+        lead = self.GetLead()
+        if isinstance(lead, Contributor):
+            return lead.GetUUID()
+        return lead
 
     def GetVersion(self) -> Version:
-        return self.Info.get('version')
+        return self.Version[0]
     def GetVersionStr(self) -> str:
         return str(self.GetVersion())
 
     def GetUUID(self) -> uuid.UUID:
-        return self.Info.get('uuid')
+        return self.Header.get('uuid')
     def GetUUIDStr(self) -> str:
         return str(self.GetUUID())
 
     # ---============================================================---
     #               Helpers
     # ---============================================================---
-    def GetInfoFile(self) -> str:
-        return self.Files.get('info')
+    def GetHeaderFile(self) -> str:
+        return self.Files.get('header')
+    def GetVersionFile(self) -> str:
+        return self.Files.get('version')
+
+    def SetCurrent(self) -> None:
+        config.PATH_CURRENT_PROJECT = f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}/{self.GetUUIDStr()}"
+        self.log.debug(f"Set {config.PATH_CURRENT_PROJECT = }")
+
+    def UpdateVersion(self, ver: Version, cID: uuid.UUID) -> None:
+        self.SavedVersion = False
+        for idx, data in enumerate(self.GetVersions()):
+            if data[1] == cID:
+                self.Version[idx + 1] = [ver, cID]
+                break
+        else:
+            self.Version.append([ver, cID])
+        self.CalcVersion()
+
+    def CalcVersion(self):
+        tVer = Version(0, 0, 0)
+        for data in self.GetVersions():
+            tVer += data[0]
+        self.Version[0] = tVer
+
+    def GetVersions(self) -> list[Version, uuid.UUID]:
+        return self.Version[1:]
 
     # Contributions
     def AddContribution(self) -> Contribution:
@@ -116,7 +157,7 @@ class Project:
         for file in os.listdir(path):
             if os.path.isdir(path + "/" + file):
                 contributions.append(self.InitContribution(file))
-        contributions = sorted(contributions, key=lambda ctb: ctb.GetNumber())
+        contributions = sorted(contributions, key=lambda ctb: ctb.GetNumber(), reverse=True)
         return contributions
 
     def InitContribution(self, filename: str = None) -> Contribution:
@@ -135,6 +176,11 @@ class Project:
     def AddContributor(self) -> Contributor:
         ctr = Contributor()
         ctr.Export()
+        return ctr
+
+    def GetContributor(self, cID: uuid.UUID) -> Contributor:
+        ctr = Contributor()
+        ctr.LoadInfo(cID)
         return ctr
 
     def GetContributors(self) -> list[Contributor]: # Returns list of contributors
@@ -166,9 +212,10 @@ class Project:
             os.mkdir(f"{path}/{config.FOLDER_CONTRIBUTORS}") # Projects/<Project UUID>/Contributors
 
         self.SaveHeader(force)
+        self.SaveVersion(force)
 
     def SaveHeader(self, force: bool = False) -> None:
-        file = self.GetInfoFile()
+        file = self.GetHeaderFile()
         if self.SavedHeader and not force:
             self.log.debug(f"Skipped saving {file}")
             return
@@ -177,21 +224,31 @@ class Project:
             f.write(self.GetName() + "\n")
             f.write(self.GetDateStr() + "\n")
             f.write(self.GetDescription() + "\n")
-            f.write(self.GetLead() + "\n")
-            f.write(self.GetVersionStr() + "\n")
+            f.write(str(self.GetLeadUUID()) + "\n")
             f.write(self.GetUUIDStr() + "\n")
         self.log.debug(f"Saved {file}")
         self.SavedHeader = True
 
+    def SaveVersion(self, force: bool = False) -> None:
+        file = self.GetVersionFile()
+        if self.SavedVersion and not force:
+            self.log.debug(f"Skipped saving {file}")
+            return
+        path = f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}/{self.GetUUIDStr()}"
+        with open(f"{path}/{file}", "w", newline='', encoding='utf-8') as f:
+            writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            for ver in self.GetVersions():
+                writer.writerow(ver)
+        self.log.debug(f"Saved {file}")
+        self.SavedVersion = True
+
     # Import
     def Import(self, filename: str, force: bool = False) -> None:
         self.LoadHeader(filename, force)
-
-        config.PATH_CURRENT_PROJECT = f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}/{filename}"
-        self.log.debug(f"Set {config.PATH_CURRENT_PROJECT = }")
+        self.LoadVersion(filename, force)
 
     def LoadHeader(self, filename: str, force: bool = False) -> None:
-        file = self.GetInfoFile()
+        file = self.GetHeaderFile()
         if self.LoadedHeader and not force:
             self.log.debug(f"Skipped loading {file}")
             return
@@ -204,10 +261,28 @@ class Project:
             lines = f.readlines()
             self.SetName(lines[0].strip())
             year, month, day = lines[1].strip().split('-')
-            self.SetDate( hp.Date.Set(int(year), int(month), int(day)) )
+            self.SetDate( dt.date(int(year), int(month), int(day)) )
             self.SetDescription(lines[2].strip())
             self.SetLead(lines[3].strip())
-            self.SetVersion(Version(lines[4].strip()))
-            self.SetUUID(lines[5].strip())
+            self.SetUUID(lines[4].strip())
         self.log.debug(f"Loaded {file}")
         self.LoadedHeader = True
+
+    def LoadVersion(self, filename: str, force: bool = False) -> None:
+        file = self.GetVersionFile()
+        if self.LoadedVersion and not force:
+            self.log.debug(f"Skipped loading {file}")
+            return
+        path = f"{config.PATH_ROOT}/{config.FOLDER_PROJECTS}/{filename}"
+        if not os.path.exists(f"{path}/{file}"):
+            self.LoadedVersion = True
+            self.log.debug(f"No {file} file to load")
+            return
+        with open(f"{path}/{file}", 'r', newline='', encoding='utf-8') as f:
+            reader = csv.reader(f, delimiter=' ', quotechar='|')
+            for row in reader:
+                version = Version(row[0])
+                cID = uuid.UUID(row[1])
+                self.UpdateVersion(version, cID)
+        self.log.debug(f"Loaded {file}")
+        self.LoadedVersion = True

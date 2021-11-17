@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 import dearpygui.dearpygui as dpg
 
@@ -37,7 +38,7 @@ class ContributorEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.parent.contributor.SetDate(date)
             self.parent.contributor.SaveInfo()
             self.parent.Edited()

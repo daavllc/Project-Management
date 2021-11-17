@@ -1,3 +1,4 @@
+import datetime as dt
 from collections import namedtuple
 import os
 
@@ -159,7 +160,7 @@ class Console:
         date = None
         try:
             date = args[0].split('-')
-            date = hp.Date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.parent.project.SetDate(date)
             self.parent.project.Export()
             self.parent.Refresh()

@@ -2,6 +2,7 @@
 # Copyright (C) 2021  DAAV, LLC
 # Language: Python 3.10
 
+import datetime as dt
 import csv
 import os
 import uuid
@@ -14,14 +15,14 @@ import config.config as config
 if __name__ == "__main__":
     exit(-1)
 class Contribution:
-    def __init__(self, name: str = 'None', date: hp.Date = hp.Date.Today(), number: int = 'None', desc: str = 'None', lead: str = 'None', change: Version = 'None'):
+    def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), number: int = 'None', desc: str = 'None', lead: Contributor = 'None', change: Version = Version("0.0.0")):
         self.log = hp.Logger("PM.Contribution", "objects.log")
         self.Info = {
             'name' : name,         # Name of the contribution
             'date' : date,         # Contribution creation date
             'number' : number,     # Contribution number in relation to the project: 01, 02, 03...
             'desc' : desc,         # Description of the contribution
-            'lead' : lead,         # Name of Contribution Lead
+            'lead' : lead,         # Contributor that is contribution lead
             'vChange' : change,    # Project version change because this contribution
             'uuid' : uuid.uuid4()  # Contribution UUID -> don't touch
         }
@@ -29,7 +30,7 @@ class Contribution:
             self.CalcNumber()
 
         self.Contributors = []
-        self.Progress = [ 0.0 ] # list of [float, hp.Date], index 0 is total progress
+        self.Progress: list[list[float, dt.date]] = [ 0.0 ] # index 0 is total progress
 
         # Serialization
         self.Files = {
@@ -40,9 +41,9 @@ class Contribution:
         self.LoadedInfo = False
         self.LoadedCtrs = False
         self.LoadedProgress = False
-        self.SavedInfo = False
-        self.SavedCtrs = False
-        self.SavedProgress = False
+        self.SavedInfo = True
+        self.SavedCtrs = True
+        self.SavedProgress = True
 
     # ---============================================================---
     #               Operation overloads
@@ -74,8 +75,9 @@ class Contribution:
         self.SavedInfo = False
         self.Info['name'] = name
 
-    def SetDate(self, date: hp.Date) -> None:
+    def SetDate(self, date: dt.date) -> None:
         self.SavedInfo = False
+        self.log.debug(f"Set date to {str(date)}")
         self.Info['date'] = date
 
     def SetNumber(self, number: int) -> None:
@@ -90,9 +92,14 @@ class Contribution:
         self.SavedInfo = False
         self.Info['desc'] = desc
 
-    def SetLead(self, contributor: str) -> None:
+    def SetLead(self, cID: uuid.UUID) -> None:
         self.SavedInfo = False
-        self.Info['lead'] = contributor
+        if cID == 'None':
+            self.Info['lead'] = 'None'
+        else:
+            ctr = Contributor()
+            ctr.Import(cID)
+            self.Info['lead'] = ctr
 
     def SetVersionChange(self, change: Version) -> None:
         self.SavedInfo = False
@@ -106,7 +113,7 @@ class Contribution:
     def GetName(self) -> str:
         return self.Info.get('name')
 
-    def GetDate(self) -> hp.Date:
+    def GetDate(self) -> dt.date:
         return self.Info.get('date')
     def GetDateStr(self) -> str:
         return str(self.GetDate())
@@ -119,8 +126,18 @@ class Contribution:
     def GetDescription(self) -> str:
         return self.Info.get('desc')
 
-    def GetLead(self) -> str:
+    def GetLead(self) -> Contributor:
         return self.Info.get('lead')
+    def GetLeadName(self) -> str:
+        lead = self.GetLead()
+        if isinstance(lead, Contributor):
+            return self.GetLead().GetName()
+        return lead
+    def GetLeadUUID(self) -> uuid.UUID:
+        lead = self.GetLead()
+        if isinstance(lead, Contributor):
+            return lead.GetUUID()
+        return lead
 
     def GetVersionChange(self) -> Version:
         return self.Info.get('vChange')
@@ -181,10 +198,11 @@ class Contribution:
     def GetTotalProgressStr(self) -> str:
         return str(self.GetTotalProgress)
 
-    def GetProgress(self) -> list[list[float, hp.Date]]:
+    def GetProgress(self) -> list[list[float, dt.date]]:
         return self.Progress[1:]
 
-    def UpdateProgress(self, increase: float, date: hp.Date) -> float:
+    def UpdateProgress(self, increase: float, date: dt.date) -> float:
+        self.SavedProgress = False
         self.Progress.append([increase, date])
         self.Progress[0] += increase
 
@@ -198,10 +216,11 @@ class Contribution:
         ctr.SaveInfo()
         return ctr
 
-    def Push(self, ctrUUID: uuid.UUID, hours: float, date: hp.Date, description: str) -> None:
+    def Push(self, ctrUUID: uuid.UUID, hours: float, date: dt.date, description: str) -> None:
         ctr = self.InitContributor(ctrUUID)
         ctr.Push(hours, date, description, self.GetUUID())
         if not ctrUUID in self.Contributors:
+            self.SavedCtrs = False
             self.Contributors.append(ctrUUID)
         ctr.Export()
 
@@ -231,7 +250,7 @@ class Contribution:
             f.write(self.GetDateStr() + "\n")
             f.write(self.GetNumberStr() + "\n")
             f.write(self.GetDescription() + "\n")
-            f.write(self.GetLead() + "\n")
+            f.write(str(self.GetLeadUUID()) + "\n")
             f.write(self.GetVersionChangeStr() + "\n")
             f.write(self.GetUUIDStr() + "\n")
         self.log.debug(f"Saved {file}")
@@ -252,7 +271,7 @@ class Contribution:
 
     def SaveProgress(self, force: bool = False):
         file = self.GetProgressFile()
-        if self.SaveProgress and not force:
+        if self.SavedProgress and not force:
             self.log.debug(f"Skipped saving {file}")
             return
         path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTIONS}/{self.GetUUIDStr()}"
@@ -283,7 +302,7 @@ class Contribution:
             lines = f.readlines()
             self.SetName(lines[0].strip())
             date = lines[1].strip().split('-')
-            self.SetDate(hp.Date.Set(int(date[0]), int(date[1]), int(date[2])))
+            self.SetDate(dt.date(int(date[0]), int(date[1]), int(date[2])))
             self.SetNumber(int(lines[2].strip()))
             self.SetDescription(lines[3].strip())
             self.SetLead(lines[4].strip())
@@ -324,7 +343,7 @@ class Contribution:
             for row in reader:
                 progress = float(row[0])
                 year, month, day = row[1].split('-')
-                date = hp.Date.Set(int(year), int(month), int(day))
+                date = dt.date(int(year), int(month), int(day))
                 self.UpdateProgress(progress, date)
         self.log.debug(f"Loaded {file}")
         self.LoadedProgress = True

@@ -16,12 +16,14 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] Profit (just kidding it's FOSS, always)
  - [ ] (Possible) External integrations?
  - [ ] (Possible) Web UI
+ - [ ] Updater
+ - [ ] Release builds w/executable
  - [ ] Many, many performance optimizations to support hundreds(?) of projects/contributions/contributors
  - [ ] Other quality-of-life additions
- - [ ] Search for projects/contributions/contributors
  - [ ] Initial documentation
  - [ ] Polished Graphical User Interface (dearpygui)
  - [ ] Console User Inerface
+ - [X] Search for projects/contributions/contributors
  - [X] GUI Project editor
  - [X] GUI Contribution editor
  - [X] GUI Contributor editor
@@ -42,6 +44,7 @@ Project files are structured as follows:
  - Projects
    - Project UUID
      - *header.inf*
+     - *versions.csv*
      - Contributions
        - Contribution UUID
          - *contributors.csv*

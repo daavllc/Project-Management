@@ -25,7 +25,7 @@ class Version:
                 self.Errors.InvalidInitializationArgs(f"Invalid initalization arguments provided: {str(args)}")
             self.FromStr(args[0])
         else:
-            raise self.Errors.InvalidInitializationArgs(f"Invalid initalization arguments provided: {str(args)}")
+            self.FromInts(0, 0, 0)
 
     def FromInts(self, release: int, major: int, minor: int) -> None:
         self.Release = release
@@ -33,11 +33,6 @@ class Version:
         self.Minor = minor
 
     def FromStr(self, version: str) -> None:
-        if version == None or version == "None.None.None" or version == "None":
-            self.Release = None
-            self.Major = None
-            self.Minor = None
-            return
         vstr = version.split('.')
         try:
             self.Release = int(vstr[0])
@@ -50,8 +45,6 @@ class Version:
     #               Operation overloads
     # ---============================================================---
     def __str__(self) -> str:
-        if self.Release == None or self.Major == None or self.Minor == None:
-            return "None"
         return f"{self.Release}.{self.Major}.{self.Minor}"
 
     def __repr__(self) -> str:
@@ -59,16 +52,6 @@ class Version:
 
     def __bool__(self):
         return not(self.Release == None or self.Major == None or self.Minor == None)
-
-    def __len__(self) -> int:
-        tVal = 0
-        if not self.Release == None:
-            tVal += 1
-        if not self.Major == None:
-            tVal += 1
-        if not self.Minor == None:
-            tVal += 1
-        return tVal
 
     def __int__(self):
         return self.Release, self.Major, self.Minor
@@ -80,10 +63,16 @@ class Version:
         return self.__bool__() or other.__bool__()
 
     def __add__(self, other):
-        return self.Release + other.Release, self.Major + other.Major, self.Minor + other.Minor
+        return Version(self.Release + other.Release, self.Major + other.Major, self.Minor + other.Minor)
+
+    def __IADD__(self, other):
+        return self.__add__(other)
 
     def __sub__(self, other):
-        return self.Release - other.Release, self.Major - other.Major, self.Minor - other.Minor
+        return Version(self.Release - other.Release, self.Major - other.Major, self.Minor - other.Minor)
+
+    def __ISUB__(self, other):
+        self.__sub__(other)
 
     def __lt__(self, other):
         if self.Release < other.Release:

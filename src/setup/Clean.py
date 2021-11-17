@@ -14,7 +14,7 @@ def Start():
 
 def DeleteLogs() -> int:
     count = 0
-    path = f"../logs"
+    path = f"../../logs"
     for file in os.listdir(path):
         os.remove(path + "/" + file)
         print(f"Deleted {path}/{file}")
