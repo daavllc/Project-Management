@@ -113,7 +113,7 @@ class Contributor:
     def GetFirst(self) -> list[float, dt.date, str, uuid.UUID]:
         self.Additions[0]
     
-    def GetLatest(self) -> list[float, dt.date, str, uuid.UUID]:
+    def GetLast(self) -> list[float, dt.date, str, uuid.UUID]:
         self.Additions[-1]
 
     def GetTotalHours(self) -> float:
@@ -132,7 +132,7 @@ class Contributor:
         return list(set([a[3] for a in self.Additions]))
 
     def GetContributionInfo(self, cID: uuid.UUID) -> list[float, dt.date, str]: # Returns list of data for the supplied contribution from most recent to least recent
-        return list(reversed([a[0:3] for a in self.Additions if a[3] == cID]))
+        return list([a[0:3] for a in self.Additions if a[3] == cID])
 
     def GetTotalContributionHours(self, cID: uuid.UUID) -> float:
         return sum(detail[0] for detail in self.GetContributionInfo(cID))
@@ -148,6 +148,12 @@ class Contributor:
 
     def GetAddition(self, index: int) -> list[float, dt.date, str, uuid.UUID]: # Returns list of data by index
         return self.Additions[index]
+
+    def GetAdditions(self) -> list[list[float, dt.date, str, uuid.UUID]]:
+        return self.Additions
+
+    def GetTotalAdditions(self) -> int:
+        return len(self.Additions)
 
     # ---============================================================---
     #               Serialization

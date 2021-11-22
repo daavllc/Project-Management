@@ -54,7 +54,7 @@ class ContributionExplorer:
                     dpg.add_text(tag=f"{self.Pre}.Contributions.Total", default_value=f"{len(self.contributions)} total contributions")
                 for idx, ctb in enumerate(self.contributions):
                     if self.show[idx] is True:
-                        dpg.add_button(tag=f"{self.Pre}.Contributions.Ctr.{idx}", label=ctb.GetName(), callback=self.SelectCallback)
+                        dpg.add_button(tag=f"{self.Pre}.Contributions.Ctr.{idx}", label=ctb.GetTitle(), callback=self.SelectCallback)
 
     def SelectCallback(self, sender, app_data, user_data) -> None:
         index = int(sender.split('.')[-1])
@@ -83,3 +83,8 @@ class ContributionExplorer:
     def Refresh(self):
         self.GetContributions()
         self.DrawContributions()
+
+    def GetCtb(self, name: str) -> Contribution:
+        for ctb in self.contributions:
+            if ctb.GetTitle() == name:
+                return ctb

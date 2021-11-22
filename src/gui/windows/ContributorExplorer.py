@@ -83,6 +83,7 @@ class ContributorExplorer:
         self.contributors.append(ctr)
         self.show.append(True)
         self.DrawContributors()
+        self.parent.Refresh() # -> Need to update Project Header becasue 'Lead' combo
 
         self.SetSelection(len(self.contributors) - 1)
 

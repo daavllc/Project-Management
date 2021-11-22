@@ -34,7 +34,7 @@ class Project:
         }
         self.LoadedHeader = False
         self.LoadedVersion = False
-        self.SavedHeader = False
+        self.SavedHeader = True
         self.SavedVersion = True
 
     # ---============================================================---
@@ -139,6 +139,7 @@ class Project:
         tVer = Version(0, 0, 0)
         for data in self.GetVersions():
             tVer += data[0]
+        self.log.debug(f"Updated version to {str(tVer)}")
         self.Version[0] = tVer
 
     def GetVersions(self) -> list[Version, uuid.UUID]:

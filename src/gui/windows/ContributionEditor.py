@@ -44,22 +44,7 @@ class ContributionEditor:
             with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Info.3", horizontal=True):
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.3.Description", default_value="Description:")
                 dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.3.DescriptionInput", hint=self.parent.contribution.GetDescription(), width=700, on_enter=True, callback=self.SetDescription)
-            with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Info.4", horizontal=True):
-                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Commit", default_value="Commit:")
-                dpg.add_combo(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Ctr", width=150, items=[ctr.GetName() for ctr in self.parent.ContributorExplorer.contributors], callback=self.PushContributor)
-                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Hours", default_value="Hours: ")
-                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.HoursInput", default_value=0.0, width=40, min_value=0.0, speed=0.25, format='%0.2f',callback=self.PushHours)
-                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Date", default_value="Date:")
-                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.DateInput", hint=f"{str(self.PushDetails.date)}", width=80, on_enter=True, callback=self.PushDate)
-                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.DescriptionInput", hint=self.PushDetails.description, width=300, callback=self.PushDescription)
-                dpg.add_button(tag=f"{self.parent.Pre}.Body.Contribution.Info.4.Push", label="Push", callback=self.Push)
-            with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Info.5", horizontal=True):
-                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.5.Progress", default_value="Progress:")
-                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Info.5.ProgressInput", default_value=0.0, width=40, min_value=0.0, max_value=100.0, speed=0.50, format='%0.2f',callback=self.ProgressValue)
-                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.5.Date", default_value="Date:")
-                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Info.5.DateInput", hint=f"{str(self.PushDetails.date)}", width=80, on_enter=True, callback=self.ProgressDate)
-                dpg.add_button(tag=f"{self.parent.Pre}.Body.Contribution.Info.5.Update", label="Update", callback=self.UpdateProgress)
-                
+
             dpg.add_spacer(tag=f"{self.parent.Pre}.Body.Contribution.InfoSpacerTop", width=2)
             dpg.add_separator(tag=f"{self.parent.Pre}.Body.Contribution.InfoSeparator")
             dpg.add_spacer(tag=f"{self.parent.Pre}.Body.Contribution.InfoSpacerBottom", width=2)
@@ -72,21 +57,42 @@ class ContributionEditor:
             dpg.add_separator(tag=f"{self.parent.Pre}.Body.Contribution.GeneratedSeparator")
             dpg.add_spacer(tag=f"{self.parent.Pre}.Body.Contribution.GeneratedSpacerBottom", width=2)
 
+            with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Update.1", horizontal=True):
+                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.Commit", default_value="Commit:")
+                dpg.add_combo(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.Ctr", width=150, items=[ctr.GetName() for ctr in self.parent.ContributorExplorer.contributors], callback=self.PushContributor)
+                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.Hours", default_value="Hours: ")
+                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.HoursInput", default_value=0.0, width=40, min_value=0.0, speed=0.25, format='%0.2f',callback=self.PushHours)
+                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.Date", default_value="Date:")
+                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.DateInput", hint=f"{str(self.PushDetails.date)}", width=80, on_enter=True, callback=self.PushDate)
+                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.DescriptionInput", hint=self.PushDetails.description, width=300, callback=self.PushDescription)
+                dpg.add_button(tag=f"{self.parent.Pre}.Body.Contribution.Update.1.Push", label="Push", callback=self.Push)
+            with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Update.2", horizontal=True):
+                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.2.Progress", default_value="Progress:")
+                dpg.add_drag_float(tag=f"{self.parent.Pre}.Body.Contribution.Update.2.ProgressInput", default_value=0.0, width=40, min_value=0.0, max_value=100.0, speed=0.50, format='%0.2f',callback=self.ProgressValue)
+                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.2.Date", default_value="Date:")
+                dpg.add_input_text(tag=f"{self.parent.Pre}.Body.Contribution.Update.2.DateInput", hint=f"{str(self.PushDetails.date)}", width=80, on_enter=True, callback=self.ProgressDate)
+                dpg.add_button(tag=f"{self.parent.Pre}.Body.Contribution.Update.2.Update", label="Update", callback=self.UpdateProgress)
+                
+            dpg.add_spacer(tag=f"{self.parent.Pre}.Body.Contribution.Update.SpacerTop", width=2)
+            dpg.add_separator(tag=f"{self.parent.Pre}.Body.Contribution.Update.Separator")
+            dpg.add_spacer(tag=f"{self.parent.Pre}.Body.Contribution.Update.SpacerBottom", width=2)
+
             with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Viewer"):
                 dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Title", default_value="Contributor Explorer")
-                with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors"):
-                    i = 0
-                    for ctr in self.parent.contribution.GetContributors():
-                        with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}", label=ctr.GetName()):
-                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Hours", default_value=f"Total hours: {ctr.GetTotalContributionHours(self.parent.contribution.GetUUID())}")
-                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.LastDate", default_value=f"Last: {ctr.GetContributionLastDate(self.parent.contribution.GetUUID())}, First: {ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} ({ctr.GetContributionLastDate(self.parent.contribution.GetUUID()) - ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} days)")
-                            with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Additons", label=f"{ctr.GetTotalContributionAdditions(self.parent.contribution.GetUUID())} additions"):
-                                additions = ctr.GetContributionInfo(self.parent.contribution.GetUUID())
-                                for j in range(len(additions)):
-                                    with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Additons.{j}", label=f"{additions[j][2]}"):
-                                        dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Additions.{j}.Hours", default_value=f"{additions[j][0]} hours")
-                                        dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Contributors.Ctr.{i}.Additions.{j}.Date", default_value=f"{additions[j][1]}")
-                        i += 1
+                if len(self.parent.contribution.GetContributors()) == 0:
+                    dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.NoCtrs", default_value="No contribution contributors found")
+                else:
+                    with dpg.group(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr"):
+                        for idx, ctr in enumerate(self.parent.contribution.GetContributors()):
+                            with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}", label=ctr.GetName()):
+                                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.Hours", default_value=f"Total hours: {ctr.GetTotalContributionHours(self.parent.contribution.GetUUID())}")
+                                dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.LastDate", default_value=f"Last: {ctr.GetContributionLastDate(self.parent.contribution.GetUUID())}, First: {ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())} ({(ctr.GetContributionLastDate(self.parent.contribution.GetUUID()) - ctr.GetContributionFirstDate(self.parent.contribution.GetUUID())).days} days)")
+                                with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.Additons", label=f"{ctr.GetTotalContributionAdditions(self.parent.contribution.GetUUID())} additions"):
+                                    additions = ctr.GetContributionInfo(self.parent.contribution.GetUUID())
+                                    for j in range(len(additions)):
+                                        with dpg.tree_node(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.Additons.{j}", label=f"{additions[j][2]}"):
+                                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.Additions.{j}.Hours", default_value=f"{additions[j][0]} hours")
+                                            dpg.add_text(tag=f"{self.parent.Pre}.Body.Contribution.Viewer.Ctr.{idx}.Additions.{j}.Date", default_value=f"{additions[j][1]}")
 
     def HeaderSize(self):
         self.log.info(f"Header size: {str(self.parent.GetSize())}")
@@ -102,7 +108,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.parent.contribution.SetDate(date)
             self.parent.contribution.SaveInfo()
             self.parent.Edited()
@@ -122,6 +128,7 @@ class ContributionEditor:
             self.parent.contribution.SetVersionChange(Version(app_data))
             self.parent.contribution.SaveInfo()
             self.parent.parent.project.UpdateVersion(Version(app_data), self.parent.contribution.GetUUID())
+            self.parent.parent.project.SaveVersion()
             self.parent.Refresh()
         except Version.Errors.InvalidInitializationArgs:
             pass
@@ -160,7 +167,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.PushDetails.date = date
         except IndexError:
             pass
@@ -186,7 +193,7 @@ class ContributionEditor:
         date = None
         try:
             date = app_data.split('-')
-            date = dt.date.Set(int(date[0]), int(date[1]), int(date[2]))
+            date = dt.date(int(date[0]), int(date[1]), int(date[2]))
             self.ProgressDetails.date = date
         except IndexError:
             pass

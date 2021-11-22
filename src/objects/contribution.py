@@ -112,6 +112,8 @@ class Contribution:
     # Getters
     def GetName(self) -> str:
         return self.Info.get('name')
+    def GetTitle(self) -> str:
+        return f"{self.GetNumberStr()}) {self.GetName()}"
 
     def GetDate(self) -> dt.date:
         return self.Info.get('date')
