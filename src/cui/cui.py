@@ -43,7 +43,7 @@ class Application:
 
     def Reload(self):
         self.log.debug("Reloading...")
-        exit(-1)
+        exit(-2)
 
     def Old(self):
         cPrj = cProject()
@@ -81,7 +81,7 @@ class Application:
                     case ["exit"] | ["close"]:
                         return
                     case ["return"] | ["menu"] | [".."]:
-                        exit(-1)
+                        exit(-2)
                     case ["reload"]:
                         exit(-2)
                     case ["help"]:

@@ -4,7 +4,7 @@
 
 # -- DO NOT EDIT -- #
 PATH_ROOT = ""
-VERSION = "v0.2.2"
+VERSION = "0.3.0"
 # ----------------- #
 
 PATH_CURRENT_PROJECT = None

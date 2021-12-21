@@ -13,7 +13,7 @@ from .contributor import Contributor
 import config.config as config
 
 if __name__ == "__main__":
-    exit(-1)
+    exit(-2)
 class Contribution:
     def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), number: int = 'None', desc: str = 'None', lead: Contributor = 'None', change: Version = Version("0.0.0")):
         self.log = hp.Logger("PM.Contribution", "objects.log")

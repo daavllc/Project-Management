@@ -22,7 +22,8 @@ class PythonConfiguration:
             if sys.version_info.major < versionMajor or (sys.version_info.major == versionMajor and sys.version_info.minor < versionMinor):
                 print("Python version too low, expected version {0:d}.{1:d} or higher. You have version {3:d}.{4:d}.{5:d}".format( \
                     versionMajor, versionMinor, sys.version_info.major, sys.version_info.minor, sys.version_info.micro))
-                return False
+                if not 'y' in input("Do you want to proceed anyway? (y/N) ").lower():
+                    return False
             return True
 
     @classmethod
@@ -33,7 +34,7 @@ class PythonConfiguration:
 
     @classmethod
     def __InstallPackage(cls, packageName):
-        reply = str(input("Would you like to install Python package '{0:s}'? (Y/n): ".format(packageName))).lower().strip()[:1]
+        reply = input(f"Would you like to install Python package '{packageName:s}'? (Y/n) ").lower()
         if 'n' in reply or 'N' in reply:
             return False
 

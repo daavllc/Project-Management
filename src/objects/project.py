@@ -14,7 +14,7 @@ from .contributor import Contributor
 import config.config as config
 
 if __name__ == "__main__":
-    exit(-1)
+    exit()
 
 class Project:
     def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), desc: str = 'None', lead: Contributor = 'None'):

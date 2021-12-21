@@ -80,7 +80,7 @@ class cContribution:
             case ["exit"] | ["close"]:
                 exit(0)
             case ['mainmenu'] | ['main', 'menu'] | ['main']:
-                exit(-1)
+                exit(-2)
             case ["reload"]:
                 exit(-2)
             case ["return"] | ["project"] | [".."]:

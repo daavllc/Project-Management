@@ -1,7 +1,10 @@
 __pycache__/
 .vscode/
 
+# User data
 Projects/
 t_Projects/
-
-*.log
+logs/
+settings/*
+# Window configuration
+!settings/dpg.ini

@@ -23,6 +23,7 @@ import sys
 
 import interface
 import config.config as config
+import update.Updater as Updater
 
 def main():
     parser = argparse.ArgumentParser(add_help=True, description="Easy to use GUI/CUI for managing projects")
@@ -37,8 +38,12 @@ def main():
     print(" |_|    |_|   \_\_\___/  \_____/   |_|    |_|/_/   |_|   |_\_\ \_|   |_|____/ |____|   |____| \_|   ")
     print(f" Copyright (C) 2021 DAAV, LLC - {config.VERSION}\n")
     args = parser.parse_args()
-    config.PATH_ROOT = __file__[:-12].replace('\\', '/')
+    config.PATH_ROOT = __file__[:-12].replace('\\', '/') # set ROOT to repo folder (removes src/main.py from path)
 
+    # Updater
+    Updater.Check()
+
+    # Begfin
     if args.UI == "CUI":
         LaunchCUI(args)
     elif args.UI == "GUI":
@@ -84,7 +89,7 @@ def LaunchMenu(args):
                 exit()
             elif "reload" in UsrInput:
                 print("Reloading...")
-                exit(-1)
+                exit(-2)
             elif 'cui' in UsrInput:
                 LaunchCUI(args)
                 break

@@ -11,7 +11,7 @@ import helpers as hp
 import config.config as config
 
 if __name__ == "__main__":
-    exit(-1)
+    exit(-2)
 
 class Contributor:
     def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), url: str = 'None'):

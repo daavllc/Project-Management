@@ -16,20 +16,25 @@ In order to effectively manage projects within an organization, details about ea
  - [ ] Profit (just kidding it's FOSS, always)
  - [ ] (Possible) External integrations?
  - [ ] (Possible) Web UI
- - [ ] Updater
- - [ ] Release builds w/executable
- - [ ] Many, many performance optimizations to support hundreds(?) of projects/contributions/contributors
- - [ ] Other quality-of-life additions
- - [ ] Initial documentation
- - [ ] Polished Graphical User Interface (dearpygui)
- - [ ] Console User Inerface
- - [X] Search for projects/contributions/contributors
- - [X] GUI Project editor
- - [X] GUI Contribution editor
- - [X] GUI Contributor editor
- - [X] GUI Project viewer
- - [X] GUI Contribution viewer
- - [X] GUI Contributor viewer
+ - [ ] Releases
+ - [ ] Documentation
+   - [ ] In-depth polished
+   - [ ] Initial
+ - [X] Updater
+ - [ ] User Interface
+   - [ ] Saveable settings
+   - [ ] CUI
+     - [ ] Quality-of-life additions
+   - [X] GUI
+     - [ ] Other quality-of-life additions
+     - [ ] Polished Graphical User Interface (dearpygui)
+     - [X] Search for projects/contributions/contributors
+     - [X] GUI Project editor
+     - [X] GUI Contribution editor
+     - [X] GUI Contributor editor
+     - [X] GUI Project viewer
+     - [X] GUI Contribution viewer
+     - [X] GUI Contributor viewer
  - [X] Get data by UUID instead of name
  - [X] Initial working implementation
  - [X] Project import/export
@@ -99,20 +104,20 @@ This structure was chosen because contributors are a subset of the project, not 
    - Contributor UUID
       
 ## Installation
-Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported, although there is no windows-only code.
+Note: currently there are no releases, so it must be downloaded from source. Officially, only windows is supported. Only some feature specific code is Windows-only (updates, and reloads).
 
 ## Download from source
  1. `git clone https://github.com/daavofficial/Project-Management.git`
  3. Open 'Project-Management' folder.
  4. Run [Win-Launch.bat](https://github.com/daavofficial/Project-Management/blob/main/Win-Launch.bat)
     - This launches [launch.ps1](https://github.com/daavofficial/Project-Management/blob/main/src/launch/launch.ps1) which performs various functions
-      - Check environment variables for python/python3 to choose the best one
-      - Launch [Setup.py](https://github.com/daavofficial/Project-Management/blob/main/src/setup/Setup.py) to [check python version](https://github.com/daavofficial/Project-Management/blob/main/src/setup/SetupPython.py) and prompt for required packages
-      - Launch [main.py](https://github.com/daavofficial/Project-Management/blob/main/src/main.py)
+      1. Checks PATH variable for Python310 (if not found will prompt you)
+      2. Launches [Setup.py](https://github.com/daavofficial/Project-Management/blob/main/src/setup/Setup.py) to [check python version](https://github.com/daavofficial/Project-Management/blob/main/src/setup/SetupPython.py) and prompt for required packages
+      3. Launches [main.py](https://github.com/daavofficial/Project-Management/blob/main/src/main.py)
         - Prompt for what UI to use 
-      - Allows reloading/error handling
+      4. Allows reloading/error handling and assists with updates
  5. Type `1` or `2` to select [CUI](https://github.com/daavofficial/Project-Management/blob/main/src/cui/cui.py), or the [GUI](https://github.com/daavofficial/Project-Management/blob/main/src/gui/gui.py) respectively
- 6. (Optional) Enjoy
+ 6. If your version is behind the version on GitHub, you will be prompted for an update
 
 ## License
     This program is free software: you can redistribute it and/or modify

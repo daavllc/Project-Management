@@ -32,18 +32,18 @@ class Application:
         self.Shutdown()
 
     def SaveInit(self):
-        dpg.save_init_file(f"{config.PATH_ROOT}/dpg.ini")
+        dpg.save_init_file(f"{config.PATH_ROOT}/settings/dpg.ini")
         self.log.debug("Saved window configuration")
 
     def Reload(self):
         self.log.debug("Reloading...")
-        exit(-3)
+        exit(-4)
 
     def Setup(self):
         self.log.debug("Setting up context...")
         dpg.create_context()
         dpg.configure_app(docking=True, docking_space=True)
-        dpg.configure_app(init_file=f"{config.PATH_ROOT}/dpg.ini", load_init_file=True)
+        dpg.configure_app(init_file=f"{config.PATH_ROOT}/settings/dpg.ini", load_init_file=True)
         dpg.create_viewport(title=f"Project Management {config.VERSION}", width=self.Width, height=self.Height, vsync=True, clear_color=[1, 0, 1, 1.0])
         dpg.setup_dearpygui()
 
