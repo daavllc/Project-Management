@@ -64,7 +64,6 @@ def Check() -> bool:
     difference = []
     for current, local in zip(currentVersion, localVersion):
         difference.append(current - local)
-    print(str(difference))
     for section in difference:
         if section < 0: # For future versions
             return False
