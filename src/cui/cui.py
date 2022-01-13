@@ -1,5 +1,5 @@
 # Project-Management.cui.cui - CUI start point/launcher
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import os
@@ -43,7 +43,7 @@ class Application:
 
     def Reload(self):
         self.log.debug("Reloading...")
-        exit(-2)
+        exit(-1)
 
     def Old(self):
         cPrj = cProject()
@@ -81,9 +81,9 @@ class Application:
                     case ["exit"] | ["close"]:
                         return
                     case ["return"] | ["menu"] | [".."]:
-                        exit(-2)
+                        exit(-1)
                     case ["reload"]:
-                        exit(-2)
+                        exit(-1)
                     case ["help"]:
                         print("\tCommands")
                         print("\t  help\n\t\tshows this menu")

@@ -1,5 +1,5 @@
 # Project-Management.cui.cProject - CUI implementation of projects
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import datetime as dt
@@ -103,9 +103,9 @@ class cProject:
             case ["exit"] | ["close"]:
                 exit(0)
             case ['mainmenu'] | ['main', 'menu'] | ['main']:
-                exit(-2)
+                exit(-1)
             case ["reload"]:
-                exit(-2)
+                exit(-1)
             case ["return"] | ["menu"] | [".."]:
                 return -1
             case ["help"]:
@@ -212,7 +212,7 @@ class cProject:
                             return
                     return
                 case ['reload']:
-                    exit(-2)
+                    exit(-1)
                 case ["help"]:
                     print("\tCommands:")
                     print("\t  help\n\t\tshow this menu")

@@ -1,5 +1,5 @@
 # Project-Management.gui.windows.PropertyEditor - GUI window for editing project properties (contributions and contributors)
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import datetime as dt

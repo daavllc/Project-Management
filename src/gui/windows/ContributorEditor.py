@@ -14,8 +14,9 @@ class PushDetails:
     date: dt.date = dt.date.today()
     description: str = "Description"
 class ContributorEditor:
-    def __init__(self, parent):
+    def __init__(self, parent, manager):
         self.parent = parent # gui.gui.windows.ProjectProperty
+        self.manager = manager # manager.contributor.ContributorManager
         self.log = hp.Logger("PM.GUI.Windows.ContributorEditor", "gui.log")
 
         self.PushDetails = PushDetails()

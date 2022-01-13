@@ -45,7 +45,7 @@ class Console:
         cmd = CommandParse(name="Project-Management CUI", description="main cui interface", fallback="Unknown command")
         main = cmd.AddGroup(name="Window", description="commands that modifiy the cui, or reload")
         main.Add([['h'], ['help']], help="shows this message", callback=cmd.PrintHelp)
-        main.Add([['reload']], help="reloads CUI", callback=lambda: exit(-2))
+        main.Add([['reload']], help="reloads CUI", callback=lambda: exit(-1))
         main.Add([['resize']], help="resizes elements based on console size", callback=self.Resize)
         prj = cmd.AddGroup(name="Project Manager", description="select, edit and view projects")
         prj.Add([['c'], ['create']], help="create new project", callback=self.CreateProject)

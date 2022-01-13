@@ -1,5 +1,5 @@
 # Project-Management.objects.base_types.version - Class for easy to use version control
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 class Version:
@@ -27,17 +27,22 @@ class Version:
         else:
             self.FromInts(0, 0, 0)
 
-    def FromInts(self, release: int, major: int, minor: int) -> None:
-        self.Release = release
-        self.Major = major
-        self.Minor = minor
+    def FromInts(self, major: int, minor: int, patch: int) -> None:
+        self.major = major
+        self.minor = minor
+        self.patch = patch
 
     def FromStr(self, version: str) -> None:
-        vstr = version.split('.')
+        vlist = version.split('.')
+        if len(vlist) > 3:
+            raise self.Errors.InvalidVersionString(f"Invalid version string provided: {version}")
+        while len(vlist) < 3:
+            vlist.append("0")
+
         try:
-            self.Release = int(vstr[0])
-            self.Major = int(vstr[1])
-            self.Minor = int(vstr[2])
+            self.major = int(vlist[0])
+            self.minor = int(vlist[1])
+            self.patch = int(vlist[2])
         except ValueError:
             raise self.Errors.InvalidVersionString(f"Invalid version string provided: {version}")
 
@@ -45,16 +50,16 @@ class Version:
     #               Operation overloads
     # ---============================================================---
     def __str__(self) -> str:
-        return f"{self.Release}.{self.Major}.{self.Minor}"
+        return f"{self.major}.{self.minor}.{self.patch}"
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def __bool__(self):
-        return not(self.Release == None or self.Major == None or self.Minor == None)
+        return not(self.major == None or self.minor == None or self.patch == None)
 
     def __int__(self):
-        return self.Release, self.Major, self.Minor
+        return self.major, self.minor, self.patch
 
     def __and__(self, other):
         return self.__bool__() and other.__bool__()
@@ -63,51 +68,51 @@ class Version:
         return self.__bool__() or other.__bool__()
 
     def __add__(self, other):
-        return Version(self.Release + other.Release, self.Major + other.Major, self.Minor + other.Minor)
+        return Version(self.major + other.major, self.minor + other.minor, self.patch + other.patch)
 
     def __IADD__(self, other):
         return self.__add__(other)
 
     def __sub__(self, other):
-        return Version(self.Release - other.Release, self.Major - other.Major, self.Minor - other.Minor)
+        return Version(self.major - other.major, self.minor - other.minor, self.patch - other.patch)
 
     def __ISUB__(self, other):
         self.__sub__(other)
 
     def __lt__(self, other):
-        if self.Release < other.Release:
-            return self.Release < other.Release
-        elif self.Major < other.Major:
-            return self.Major < other.Major
-        elif self.Minor < other.Minor:
-            return self.Minor < other.Minor
+        if self.major < other.major:
+            return self.major < other.major
+        elif self.minor < other.minor:
+            return self.minor < other.minor
+        elif self.patch < other.patch:
+            return self.patch < other.patch
 
     def __le__(self, other):
-        if self.Release <= other.Release:
-            return self.Release <= other.Release
-        elif self.Major <= other.Major:
-            return self.Major < other.Major
-        elif self.Minor <= other.Minor:
-            return self.Minor <= other.Minor
+        if self.major <= other.major:
+            return self.major <= other.major
+        elif self.minor <= other.minor:
+            return self.minor < other.minor
+        elif self.patch <= other.patch:
+            return self.patch <= other.patch
 
     def __gt__(self, other):
-        if self.Release > other.Release:
-            return self.Release > other.Release
-        elif self.Major > other.Major:
-            return self.Major > other.Major
-        elif self.Minor > other.Minor:
-            return self.Minor > other.Minor
+        if self.major > other.major:
+            return self.major > other.major
+        elif self.minor > other.minor:
+            return self.minor > other.minor
+        elif self.patch > other.patch:
+            return self.patch > other.patch
 
     def __ge__(self, other):
-        if self.Release >= other.Release:
-            return self.Release >= other.Release
-        elif self.Major >= other.Major:
-            return self.Major >= other.Major
-        elif self.Minor >= other.Minor:
-            return self.Minor >= other.Minor
+        if self.major >= other.major:
+            return self.major >= other.major
+        elif self.minor >= other.minor:
+            return self.minor >= other.minor
+        elif self.patch >= other.patch:
+            return self.patch >= other.patch
 
     def __eq__(self, other):
-        return self.Release == other.Release and self.Major == other.Major and self.Minor == other.Minor
+        return self.major == other.major and self.minor == other.minor and self.patch == other.patch
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -145,23 +150,20 @@ class Version:
     # ---============================================================---
     #               Version Getters/Setters
     # ---============================================================---
-    def GetRelease(self) -> int:
-        return self.Release
-
     def GetMajor(self) -> int:
-        return self.Major
+        return self.major
 
     def GetMinor(self) -> int:
-        return self.Minor
+        return self.minor
 
-    def SetRelease(self, release: int) -> None:
-        self.Release = release
+    def GetPatch(self) -> int:
+        return self.patch
 
     def SetMajor(self, major: int) -> None:
-        self.Major = major
+        self.major = major
 
     def SetMinor(self, minor: int) -> None:
-        self.Minor = minor
+        self.minor = minor
 
-
-    
+    def SetPatch(self, patch: int) -> None:
+        self.patch = patch

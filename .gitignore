@@ -6,5 +6,9 @@ Projects/
 t_Projects/
 logs/
 settings/*
+
 # Window configuration
 !settings/dpg.ini
+
+# pyLaunch
+pyLaunch/logs

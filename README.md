@@ -7,8 +7,8 @@ In order to effectively manage projects within an organization, details about ea
 ## Details:
  - Project lead: [Anonoei](https://github.com/Anonoei)
  - Language: Python 3.10
- - License: GPLv3
- - Dependancies: dearpygui
+ - License: MIT
+ - Dependancies: dearpygui, pyyaml
 
 ----
 
@@ -35,6 +35,14 @@ In order to effectively manage projects within an organization, details about ea
      - [X] GUI Project viewer
      - [X] GUI Contribution viewer
      - [X] GUI Contributor viewer
+ - [ ] Manager
+   - [ ] Undo/Redo
+   - [ ] Projects
+     - [ ] 
+   - [ ] Contributions
+     - [ ] 
+   - [ ] Contribututors
+     - [ ] 
  - [X] Get data by UUID instead of name
  - [X] Initial working implementation
  - [X] Project import/export

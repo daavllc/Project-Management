@@ -1,5 +1,5 @@
 # Project-Management.gui.windows.windows - GUI window that serves as the GUI start point/launcher
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import dearpygui.dearpygui as dpg
@@ -14,22 +14,24 @@ class Windows:
     def __init__(self, parent):
         self.parent = parent # gui.gui.Application
         self.log = hp.Logger("PM.GUI.Windows", "gui.log")
-        self.project = None
+        self.manager = self.parent.manager
 
-        self.ProjectProperty = ProjectProperty(self)
-        self.ProjectExplorer = ProjectExplorer(self)
+        self.Window = "PrimaryWindow"
+        self.Pre = "Primary"
 
-    def SetProject(self, prj):
-        if prj is None:
-            config.PATH_CURRENT_PROJECT = None
-            self.log.debug(f"Set self.project to None")
-        else:
-            self.project = prj
-            self.project.SetCurrent()
+        with dpg.window(tag=self.Window):
+            self.ProjectProperty = ProjectProperty(self, self.manager.Projects)
+            self.ProjectExplorer = ProjectExplorer(self, self.manager.Projects)
+
+
+    def SyncProject(self):
+        self.ProjectExplorer.Refresh()
+        self.ProjectProperty.Refresh()
         self.ProjectProperty.ContributorExplorer.Refresh()
         self.ProjectProperty.ContributionExplorer.Refresh()
-        self.ProjectProperty.Refresh()
 
     def Refresh(self):
         self.ProjectExplorer.Refresh()
         self.ProjectProperty.Refresh()
+        self.ProjectProperty.ContributorExplorer.Refresh()
+        self.ProjectProperty.ContributionExplorer.Refresh()

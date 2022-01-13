@@ -1,5 +1,5 @@
 # Project-Management.objects.contributor - Implementation of Project Contributor
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import datetime as dt
@@ -10,11 +10,13 @@ import uuid
 import helpers as hp
 import config.config as config
 
+from objects.base_types.time import Time
+
 if __name__ == "__main__":
-    exit(-2)
+    exit(-1)
 
 class Contributor:
-    def __init__(self, name: str = 'None', date: dt.date = dt.date.today(), url: str = 'None'):
+    def __init__(self, name: str = 'Default Contributor', date: dt.date = dt.date.today(), url: str = 'None'):
         self.log = hp.Logger("PM.Contributor", "objects.log")
         self.Info = {
             'name' : name,        # Name of Contributor
@@ -22,17 +24,13 @@ class Contributor:
             'url' : url,          # Contributor URL
             'uuid' : uuid.uuid4() # Contributor UUID -> don't touch
         }
-        self.Additions: list[list[float, dt.date, str, uuid.UUID]] = []
-
-        # Serialization
-        self.Files = {
-            'info' : 'info.inf',
-            'additions' : 'additions.csv'
-        }
-        self.LoadedInfo = False
-        self.LoadedAdditions = False
-        self.SavedInfo = True
-        self.SavedAdditions = True
+        self.Additions: dict = dict(
+            # dt.datetime.now() = dict(
+            # timeWorked: Time = timeWorked
+            # description: str = description
+            # ctbUUID: uuid.UUID = ctbUUID
+            # ), ...
+        )
 
     # ---============================================================---
     #               Operation overloads
@@ -53,19 +51,15 @@ class Contributor:
     # ---============================================================---
     # Setters
     def SetName(self, name: str) -> None:
-        self.SavedInfo = False
         self.Info['name'] = name
 
     def SetDate(self, date: dt.date) -> None:
-        self.SavedInfo = False
         self.Info['date'] = date
 
     def SetURL(self, url: str) -> None:
-        self.SavedInfo = False
         self.Info['url'] = url
 
     def SetUUID(self, uid: str) -> None:
-        self.SavedInfo = False
         self.Info['uuid'] = uuid.UUID(uid)
 
     # Getters
@@ -88,157 +82,75 @@ class Contributor:
     # ---============================================================---
     #               Helpers
     # ---============================================================---
-    def GetInfoFile(self) -> str:
-        return self.Files.get('info')
-    def GetAdditionsFile(self) -> str:
-        return self.Files.get('additions')
+    def Push(self, timeWorked: Time, description: str, contribution: uuid.UUID, pushTime = dt.datetime.now()) -> None:
+        self.Additions[pushTime] = dict(
+            timeWorked = timeWorked,
+            description = description,
+            ctbUUID = contribution
+        )
 
-    def Push(self, hours: float, date: dt.date, description: str, contribution: uuid.UUID) -> None:
-        self.SavedAdditions = False
-        self.Additions.append([hours, date, description, contribution])
-
-    def View(self) -> list[list[float, dt.date, str, uuid.UUID]]:
+    def View(self) -> dict[dict[Time, dt.date, str, uuid.UUID]]:
         return self.Additions
 
-    def GetFirstDate(self) -> dt.date:
-        return self.Additions[0][1]
-    def GetFirstStr(self) -> str:
+    def GetFirstDate(self) -> dt.datetime:
+        return (self.Additions.keys())[0]
+    def GetFirstDateStr(self) -> str:
         return str(self.GetFirstDate())
 
-    def GetLastDate(self) -> dt.date:
-        return self.Additions[-1][1]
+    def GetLastDate(self) -> dt.datetime:
+        return (self.Additions.keys())[-1]
     def GetLastDateStr(self) -> str:
         return str(self.GetLastDate())
 
-    def GetFirst(self) -> list[float, dt.date, str, uuid.UUID]:
-        self.Additions[0]
+    def GetFirst(self) -> list[dt.datetime, dict[Time, str, uuid.UUID]]:
+        return [self.additions.keys[0], self.additions.values[0]]
     
-    def GetLast(self) -> list[float, dt.date, str, uuid.UUID]:
-        self.Additions[-1]
+    def GetLast(self) -> list[dt.datetime, dict[Time, str, uuid.UUID]]:
+        return [self.additions.keys[-1], self.additions.values[-1]]
 
-    def GetTotalHours(self) -> float:
+    def GetTotalHours(self) -> Time:
         return sum(self.GetHours())
 
-    def GetHours(self) -> list[float]:
-        return [a[0] for a in self.Additions]
+    def GetHours(self) -> list[Time]:
+        return [val[0] for val in self.Additions.values()]
 
     def GetDates(self) -> list[dt.date]:
-        return [a[1] for a in self.Additions]
+        return [val for val in self.Additions.keys()]
 
     def GetDescriptions(self) -> list[str]:
-        return [a[2] for a in self.Additions]
+        return [val[1] for val in self.Additions.values()]
 
     def GetWorkedContributions(self) -> list[uuid.UUID]: # returns list of unique contribution uuids
-        return list(set([a[3] for a in self.Additions]))
+        return list(set([val[2] for val in self.Additions.values()]))
 
-    def GetContributionInfo(self, cID: uuid.UUID) -> list[float, dt.date, str]: # Returns list of data for the supplied contribution from most recent to least recent
-        return list([a[0:3] for a in self.Additions if a[3] == cID])
+    def GetContributionInfo(self, cID: uuid.UUID) -> list[dt.datetime, Time, str]: # Returns list of data for the supplied contribution from most recent to least recent
+        info = []
+        for key, value in self.Additions.items():
+            if value['ctbUUID'] == cID:
+                info.append[key, value[0], value[1]]
+        return info
 
-    def GetTotalContributionHours(self, cID: uuid.UUID) -> float:
-        return sum(detail[0] for detail in self.GetContributionInfo(cID))
+    def GetTotalContributionHours(self, cID: uuid.UUID) -> Time:
+        return sum(detail[1] for detail in self.GetContributionInfo(cID))
 
     def GetContributionFirstDate(self, cID: uuid.UUID) -> dt.date:
-        return min(detail[1] for detail in self.GetContributionInfo(cID))
+        return min(detail[0] for detail in self.GetContributionInfo(cID))
 
     def GetContributionLastDate(self, cID: uuid.UUID) -> dt.date:
-        return max(detail[1] for detail in self.GetContributionInfo(cID))
+        return max(detail[0] for detail in self.GetContributionInfo(cID))
 
     def GetTotalContributionAdditions(self, cID: uuid.UUID) -> int:
         return len(self.GetContributionInfo(cID))
 
-    def GetAddition(self, index: int) -> list[float, dt.date, str, uuid.UUID]: # Returns list of data by index
+    def GetAdditionByIndex(self, index: int) -> list[Time, str, uuid.UUID]: # Returns list of data by index
         return self.Additions[index]
 
-    def GetAdditions(self) -> list[list[float, dt.date, str, uuid.UUID]]:
+    def GetAdditionByDate(self, date: dt.date) -> list[Time, str, uuid.UUID]:
+        return [key for key in self.addititions.keys() if key.date() == date]
+
+    def GetAdditions(self) -> dict[dict[Time, dt.date, str, uuid.UUID]]:
         return self.Additions
 
     def GetTotalAdditions(self) -> int:
         return len(self.Additions)
-
-    # ---============================================================---
-    #               Serialization
-    # ---============================================================---
-    # Export
-    def Export(self, force: bool = False) -> None:
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{self.GetUUIDStr()}"
-        if not os.path.exists(path):
-            os.mkdir(path) # Projects/<Project UUID>/Contributors/<Contributor UUID>
-
-        self.SaveInfo(force)
-        self.SaveAdditions(force)
-
-    def SaveInfo(self, force: bool = False) -> None:
-        file = self.GetInfoFile()
-        if self.SavedInfo and not force:
-            self.log.debug(f"Skipped saving {file}")
-            return
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{self.GetUUIDStr()}"
-        with open(f"{path}/{file}", 'w') as f:
-            f.write(self.GetName() + "\n")
-            f.write(self.GetDateStr() + "\n")
-            f.write(self.GetURL() + "\n")
-            f.write(self.GetUUIDStr() + "\n")
-        self.log.debug(f"Saved {file}")
-        self.SavedInfo = True
-
-    def SaveAdditions(self, force: bool = False) -> None:
-        file = self.GetAdditionsFile()
-        if self.SavedAdditions and not force:
-            self.log.debug(f"Skipped saving {file}")
-            return
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{self.GetUUIDStr()}"
-        with open(f"{path}/{file}", "w", newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter= ' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            for index in range(self.__len__()):
-                writer.writerow(self.Additions[index])
-        self.log.debug(f"Saved {file}")
-        self.SavedAdditions = True
-
-    # Import
-    def Import(self, filename: str, force: bool = False) -> None:
-        self.LoadInfo(filename, force)
-        self.LoadAdditions(filename, force)
-
-    def LoadInfo(self, filename: str, force: bool = False) -> None:
-        file = self.GetInfoFile()
-        if self.LoadedInfo and not force:
-            self.log.debug(f"Skipped loading {file}")
-            return
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{filename}"
-        if not os.path.exists(f"{path}/{file}"):
-            self.LoadedInfo = True
-            self.log.debug(f"No {file} file to load")
-            return
-        with open(f"{path}/{file}", 'r') as f:
-            lines = f.readlines()
-            self.SetName(lines[0].strip())
-            date = lines[1].split('-')
-            self.SetDate(dt.date(int(date[0]), int(date[1]), int(date[2])))
-            self.SetURL( lines[2].strip())
-            self.SetUUID(lines[3].strip())
-        self.log.debug(f"Loaded {file}")
-        self.LoadedInfo = True
-
-    def LoadAdditions(self, filename: str, force: bool = False) -> None:
-        file = self.GetAdditionsFile()
-        if self.LoadedAdditions and not force:
-            self.log.debug(f"Skipped loading {file}")
-            return
-        path = f"{config.PATH_CURRENT_PROJECT}/{config.FOLDER_CONTRIBUTORS}/{filename}"
-        if not os.path.exists(f"{path}/{file}"):
-            self.LoadedProgress = True
-            self.log.debug(f"No {file} file to load")
-            return
-        with open(f"{path}/{file}", 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f, delimiter=' ', quotechar='|')
-
-            for row in reader:
-                hours = float(row[0])
-                year, month, day = row[1].split('-')
-                date = dt.date(int(year), int(month), int(day))
-                desc = row[2]
-                cUID = uuid.UUID(row[3])
-                self.Push(hours, date, desc, cUID)
-        self.log.debug(f"Loaded {file}")
-        self.LoadedAdditions = True
 

@@ -1,5 +1,5 @@
 # Project-Management.cui.cContributor - CUI implementation of project contributor
-# Copyright (C) 2021  DAAV, LLC
+# Copyright (C) 2021-2022  DAAV, LLC
 # Language: Python 3.10
 
 import datetime as dt
@@ -61,7 +61,7 @@ class cContributor:
             case ["exit"] | ["close"]:
                 exit(0)
             case ["reload"]:
-                exit(-2)
+                exit(-1)
             case ["return"] | ["menu"] | [".."]:
                 return -1
             case ["help"]:
