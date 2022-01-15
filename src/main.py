@@ -22,8 +22,8 @@ def main():
     print(" / ____/ /  / /_/ / / /  __/ /__/ /_   / /  / / /_/ / / / / /_/ / /_/ /  __/ / / / / /  __/ / / / /_  ")
     print("/_/   /_/   \____/_/ /\___/\___/\__/  /_/  /_/\__,_/_/ /_/\__,_/\__, /\___/_/ /_/ /_/\___/_/ /_/\__/  ")
     print("                /___/                                          /____/                                 ")
-    print(f" Copyright (C) 2021-2022 DAAV, LLC - {config.VERSION}\n")
-    print(f" Licensed under the MIT license. See LICENSE for details")
+    print(f" Copyright (C) 2021-2022 DAAV, LLC - {config.VERSION}")
+    print(f" Licensed under the MIT license. See LICENSE for details\n")
     args = parser.parse_args()
     config.PATH_ROOT = __file__[:-12].replace('\\', '/') # set ROOT to repo folder (removes src/main.py from path)
 

@@ -15,7 +15,6 @@ import argparse
 import os
 import sys
 import platform
-import shutil
 import urllib.request
 
 import helpers.config as config
@@ -37,6 +36,7 @@ def main():
     parser.add_argument("-W", "--logwrite", dest="LogWrite", help="skip writing logs to file", action='store_true')
     parser.add_argument("-P", "--logprint", dest="LogPrint", help="skip printing logs to console", action='store_true')
     parser.add_argument("-u", "--update", dest="Update", help="check for update", action='store_true')
+    parser.add_argument("-rn", "--release-notes", dest="ReleaseNotes", help="show release notes", action='store_true')
     parser.add_argument("-UI", "--user-interface", dest="UI", help="interface for pyLaunch launcher", choices=['CUI', 'GUI'], default='GUI')
     parser.add_argument("-t", "--theme", dest="Theme", help="color theme for GUI [default=dark]", choices=s.GetThemes(), default='dark')
 
@@ -83,15 +83,12 @@ def main():
     log.debug(f"Launching with {platform.platform()} on {platform.machine()}")
     if sys.version is not None:
         log.debug(f"Using Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
-    config.PATH_USERCONFIG = config.PATH_ROOT
-    with open("confpath.txt", "w", encoding="utf-8") as f:
-        f.write(config.FILE_USERCONFIG + "\n")
 
     if args.Update:
         log.info(f"Checking for update")
         CheckedVersion = None
         try:
-            response = urllib.request.urlopen(f"https://raw.githubusercontent.com/daavofficial/pyLaunch/main/helpers/config.py")
+            response = urllib.request.urlopen(f"https://raw.githubusercontent.com/{config.GIT_ORG}/{config.GIT_REPO}/main/helpers/config.py")
             content = response.read().decode("UTF-8").split("\n")
             for line in content:
                 if "VERSION = " in line:
@@ -117,6 +114,22 @@ def main():
             print(f"Up to date! [{config.VERSION}]")
         input("Press enter to exit")
         sys.exit(0)
+
+    if args.ReleaseNotes:
+        from helpers.changelog import Changelog
+        import datetime as dt
+        log.info(f"Checking git commits for release notes")
+        cl = Changelog(config.GIT_ORG, config.GIT_REPO)
+        change = cl.Get()
+        for item in change:
+            date = dt.datetime.fromisoformat(item['date'])
+            print(f"{date.strftime('%Y-%m-%d %H:%M:%S')} : {item['sha']}")
+            print(f"Author: {item['author']['name']} - {item['author']['email']}\n")
+            print(item['message'])
+            print("----")
+        input("Press enter to exit")
+        sys.exit(0)
+
 
     if args.Count:
         from helpers.count import Counter as Counter
@@ -144,10 +157,10 @@ def main():
     cfgr = Configurator.Get()
     if args.Modify:
         log.debug("Creating new configuration due to modify argument")
-        if os.path.exists(f"{config.PATH_ROOT}{os.sep}{config.FILE_USERCONFIG}"):
+        if os.path.exists(f"{config.PATH_ROOT}{os.sep}{config.FILENAME_CONFIGURATION}"):
             cfgr.Load()
         NewConfiguration(cfgr, args)
-    if not os.path.exists(f"{config.PATH_ROOT}{os.sep}{config.FILE_USERCONFIG}"):
+    if not os.path.exists(f"{config.PATH_ROOT}{os.sep}{config.FILENAME_CONFIGURATION}"):
         log.debug("Configuration file not found, creating new")
         NewConfiguration(cfgr, args)
     
@@ -170,7 +183,7 @@ def NewConfiguration(cfgr, args):
 
 def LaunchConfiguration(cfgr, args):
     log.info("Launching configuration")
-    config.USER_CONFIGURATION = cfgr.Configuration
+    config.CONFIGURATION = cfgr.Configuration
     ui = None
     if args.UI == "GUI":
         ui = GUI()
@@ -180,23 +193,14 @@ def LaunchConfiguration(cfgr, args):
     sys.exit(0)
 
 def Reset():
-    if os.path.exists("confpath.txt"):
-        with open("confpath.txt", "r", encoding="utf-8") as f:
-            lines = f.readlines()
-            lines = lines[0].strip()
-            if os.name == "nt":
-                lines = lines.replace('\\', '/')
-            if os.path.exists(lines):
-                os.remove(lines)
-                print(f"Deleted: {config.FILE_USERCONFIG}")
-        os.remove("confpath.txt")
-        print(f"Deleted: confpath.txt")
-    elif os.path.exists(config.FILE_USERCONFIG):
-        os.remove(config.FILE_USERCONFIG)
-        print(f"Deleted: {config.FILE_USERCONFIG}")
+    import shutil
+    if os.path.exists(config.FILENAME_CONFIGURATION):
+        os.remove(config.FILENAME_CONFIGURATION)
+        print(f"Deleted: {config.FILENAME_CONFIGURATION}")
 
-    shutil.rmtree("logs")
-    print(f"Deleted: logs")
+    if os.path.exists("logs"):
+        shutil.rmtree("logs")
+        print(f"Deleted: logs")
     log.info("Successfully reset!")
     if 'n' in input("Start normally? (Y/n) > "):
         sys.exit(0)

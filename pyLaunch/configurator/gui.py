@@ -1,13 +1,15 @@
-
+import datetime as dt
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
-import time
+import os
 
 import helpers.config as config
 from helpers.style import Style
 import helpers.gui as gh
 from helpers.logger import Logger
+from helpers.changelog import Changelog
+
 s = Style.Get()
 
 class GUI:
@@ -25,7 +27,6 @@ class GUI:
         self.ws = tk.Tk()
 
         self.Completed = False
-        self.ConfigStatus = [False, False, False]
         self.Configuring = False
     
         self.data = self.Storage()
@@ -67,7 +68,8 @@ class GUI:
         self.Menus.Help.add_command(label="What's this?", command=self.PopupStartup)
         self.Menus.Help.add_separator()
         self.Menus.Help.add_command(label="About", command=self.PopupAbout)
-        self.Menus.Help.add_command(label="Documentation", command=lambda: webbrowser.open("https://docs.daav.us/pyLaunch"))
+        self.Menus.Help.add_command(label="Documentation", command=lambda: webbrowser.open(config.LINK_DOCUMENTATION))
+        self.Menus.Help.add_command(label="Release Notes", command=self.PopupChangelog)
         self.Menus.Help.add_separator()
         self.Menus.Help.add_command(label="Configuration", command=self.PopupConfiguration)
         self.Menus.Help.add_command(label="Updater", command=self.PopupUpdater)
@@ -89,21 +91,33 @@ class GUI:
         self.Frames.Configuration_Body.pack_propagate(0)
         self.Frames.Configuration_Body.pack(fill='both', side='top', expand='False')
 
-        gh.Button(self.Frames.Configuration_Body, text="Updater", command=self.ConfigureUpdater, width=8, bg=0).grid(column=0, row=1, padx=5, pady=5)
-        self.fr_cft_update_status = gh.SmallLabel(self.Frames.Configuration_Body, text="Incomplete", bg=0)
-        self.fr_cft_update_status.grid(column=1, row=1)
+        self.ConfigurationStatus = dict(
+            Updater =dict(
+                Callback = self.ConfigureUpdater,
+                Complete = False,
+                Label = None
+            ),
+            Setup = dict(
+                Callback = self.ConfigureSetup,
+                Complete = False,
+                Label = None
+            ),
+            Launcher = dict(
+                Callback = self.ConfigureLauncher,
+                Complete = False,
+                Label = None
+            ),
+        )
+        row = 1
+        for key, value in self.ConfigurationStatus.items():
+            gh.Button(self.Frames.Configuration_Body, text=key, command=value['Callback'], width=8, bg=0).grid(column=0, row=row, padx=5, pady=5)
+            value['Label'] = gh.SmallLabel(self.Frames.Configuration_Body, text="Incomplete", bg=0)
+            value['Label'].grid(column=1, row=row)
+            row += 1
 
-        gh.Button(self.Frames.Configuration_Body, text="Setup", command=self.ConfigureSetup, width=8, bg=0).grid(column=0, row=2, padx=5, pady=5)
-        self.fr_cft_setup_status = gh.Label(self.Frames.Configuration_Body, text="Incomplete", font=s.FONT_TEXT_SMALL, bg=0)
-        self.fr_cft_setup_status.grid(column=1, row=2)
-
-        gh.Button(self.Frames.Configuration_Body, text="Launcher", command=self.ConfigureLauncher, width=8, bg=0).grid(column=0, row=3, padx=5, pady=5)
-        self.fr_cft_launch_status = gh.SmallLabel(self.Frames.Configuration_Body, text="Incomplete", bg=0)
-        self.fr_cft_launch_status.grid(column=1, row=3)
-
-        self.fr_cft_finish_label = gh.Label(self.Frames.Configuration_Body, text="", bg=0)
-        self.fr_cft_finish_label.grid(column=0, row=4)
-        gh.Button(self.Frames.Configuration_Body, text="Finish", command=self.FinishConfiguration, bg=0).grid(column=0, row=5)
+        self.ConfigurationComplete = gh.Label(self.Frames.Configuration_Body, text="", bg=0)
+        self.ConfigurationComplete.grid(column=0, row=row)
+        gh.Button(self.Frames.Configuration_Body, text="Finish", command=self.FinishConfiguration, bg=0).grid(column=0, row=row + 1)
 
         # Configurator
         self.Frames.Configurator = tk.Frame(self.ws, width=500, height=400, borderwidth=10, background=s.FRAME_BG_ALT)
@@ -134,8 +148,8 @@ class GUI:
 
         Startup_Buttons = tk.Frame(popup, background=s.FRAME_BG_ALT)
         Startup_Buttons.pack(pady=5)
-        gh.Button(Startup_Buttons, text="GitHub Page", command=lambda: webbrowser.open("https://github.com/daavofficial/pyLaunch"), bg=1).grid(column=0, row=0, padx=20)
-        gh.Button(Startup_Buttons, text="Docs", command=lambda: webbrowser.open("https://docs.daav.us/pyLaunch"), width=6, bg=1).grid(sticky='w', column=1, row=0)
+        gh.Button(Startup_Buttons, text="GitHub Page", command=lambda: webbrowser.open(config.LINK_GITHUB), bg=1).grid(column=0, row=0, padx=20)
+        gh.Button(Startup_Buttons, text="Docs", command=lambda: webbrowser.open(config.LINK_DOCUMENTATION), width=6, bg=1).grid(sticky='w', column=1, row=0)
         gh.Button(Startup_Buttons, text="Close", command=popup.destroy, bg=1).grid(column=2, row=0, padx=20)
     
     def PopupAbout(self):
@@ -155,9 +169,9 @@ class GUI:
         About_Source = tk.Frame(popup, borderwidth=10, background=s.FRAME_BG_ALT)
         About_Source.pack(anchor='w')
         gh.Label(About_Source, text=f"License: MIT", justify='left', bg=1).grid(sticky='w', column=0, row=0)
-        gh.Button(About_Source, text="Source Code", command=lambda: webbrowser.open("https://github.com/daavofficial/pyLaunch"), bg=1).grid(sticky='w', column=1, row=0, padx=10)
+        gh.Button(About_Source, text="Source Code", command=lambda: webbrowser.open(config.LINK_GITHUB), bg=1).grid(sticky='w', column=1, row=0, padx=10)
         gh.Label(About_Source, text=f"Documentation: ", justify='left', bg=1).grid(sticky='w', column=0, row=1)
-        gh.Button(About_Source, text="docs.daav.us", command=lambda: webbrowser.open("https://docs.daav.us/pyLaunch"), bg=1).grid(sticky='w', column=1, row=1, padx=10)
+        gh.Button(About_Source, text="docs.daav.us", command=lambda: webbrowser.open(config.LINK_DOCUMENTATION), bg=1).grid(sticky='w', column=1, row=1, padx=10)
 
         gh.FillHorizontalSeparator(popup, pady=5)
 
@@ -167,6 +181,47 @@ class GUI:
         gh.Label(popup, text=f"Updater v{config.VERSION_UPDATE}", bg=1).pack(anchor='w', padx=5)
         gh.Label(popup, text=f"Setup v{config.VERSION_SETUP}", bg=1).pack(anchor='w', padx=5)
         gh.Label(popup, text=f"Launcher v{config.VERSION_LAUNCH}", bg=1).pack(anchor='w', padx=5)
+
+    def PopupChangelog(self):
+        popup = tk.Toplevel(self.ws, background=s.FRAME_BG_ALT)
+        popup.geometry("500x600")
+        popup.title("Help - Release notes")
+        popup.resizable(width=False, height=True)
+        popup.iconbitmap(self.Icon)
+
+        gh.Title(popup, text="Release notes", bg=1).pack(pady=5)
+
+        container = tk.Frame(popup, background=s.FRAME_BG_ALT)
+        canvas = tk.Canvas(container, borderwidth=0, highlightthickness=0, background=s.FRAME_BG)
+        scrollbar = tk.Scrollbar(container, orient='vertical', command=canvas.yview)
+
+        frame = tk.Frame(canvas, background=s.FRAME_BG)
+        frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion = canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        cl = Changelog(config.GIT_ORG, config.GIT_REPO)
+        changelog = cl.Get()
+        for item in changelog:
+            date = dt.datetime.fromisoformat(item['date'])
+
+            gh.LargeLabel(frame, text=f"{date.strftime('%Y-%m-%d %H:%M:%S')}", bg=0).pack(anchor='w')
+            gh.Label(frame, text=f"Author: {item['author']['name']} - {item['author']['email']}", justify='left', wraplength=550, bg=0).pack(anchor='w')
+            gh.Label(frame, text=item['message'], justify='left', wraplength=550, bg=0).pack(anchor='w')
+            gh.Button(frame, text="View on GitHub", command=lambda sha=item['sha']: webbrowser.open(f"https://github.com/{config.GIT_ORG}/{config.GIT_REPO}/commit/{sha}"), bg=0).pack()
+            if not item == changelog[-1]:
+                gh.FillHorizontalSeparator(frame, pady=5)
+
+        container.pack(side='left', fill='both', expand=True)
+        canvas.pack(padx=5, pady=5, side='left', fill='both', expand=True)
+        scrollbar.pack(side="right", fill="y")
+
 
     def PopupConfiguration(self):
         popup = tk.Toplevel(self.ws, borderwidth=10, background=s.FRAME_BG_ALT)
@@ -192,7 +247,7 @@ class GUI:
         Configuration_Buttons.pack(pady=5)
 
         gh.Label(Configuration_Buttons, text="More documentation is available at", bg=1).grid(sticky='w', column=0, row=0, pady=5)
-        gh.Button(Configuration_Buttons, text="docs.daav.us", command=lambda: webbrowser.open("https://docs.daav.us/pyLaunch"), bg=1).grid(sticky='w', column=1, row=0)
+        gh.Button(Configuration_Buttons, text="docs.daav.us", command=lambda: webbrowser.open(config.LINK_DOCUMENTATION), bg=1).grid(sticky='w', column=1, row=0)
 
     def PopupUpdater(self):
         popup = tk.Toplevel(self.ws, borderwidth=10, background=s.FRAME_BG_ALT)
@@ -276,28 +331,21 @@ class GUI:
         self.ws.mainloop()
 
     def FinishConfiguration(self):
-        if not(self.ConfigStatus[0] and self.ConfigStatus[1] and self.ConfigStatus[2]):
-            self.fr_cft_finish_label.config(text="Incomplete")
+        if not( all(complete == True for complete in [value['Complete'] for value in self.ConfigurationStatus.values()]) ):
+            self.ConfigurationComplete.config(text="Incomplete")
         else:
-            self.fr_cft_finish_label.config(text="Done!")
+            self.ConfigurationComplete.config(text="Done!")
             self.Configurator.Save()
             self.Completed = True
             self.ws.destroy()
             return True
 
     def UpdateStatus(self):
-        if self.ConfigStatus[0]:
-            self.fr_cft_setup_status.config(text="Done")
-        else:
-            self.fr_cft_setup_status.config(text="Not complete")
-        if self.ConfigStatus[1]:
-            self.fr_cft_update_status.config(text="Done")
-        else:
-            self.fr_cft_update_status.config(text="Not complete")
-        if self.ConfigStatus[2]:
-            self.fr_cft_launch_status.config(text="Done")
-        else:
-            self.fr_cft_launch_status.config(text="Not complete")
+        for key in self.ConfigurationStatus.keys():
+            if self.ConfigurationStatus[key]['Complete']:
+                self.ConfigurationStatus[key]['Label'].config(text="Done")
+            else:
+                self.ConfigurationStatus[key]['Label'].config(text="Incomplete")
 
     def ClearConfigure(self):
         self.data = self.Storage()
@@ -354,10 +402,10 @@ class GUI:
         status = self.Configurator.Update.Set(Organization, Repository, Branch, VersionPath, Find, Token, self.data.Update['SkipCheck'])
         if not type(status) == list:
             self.StatusLabel.config(text="Unable to connect to the internet, config saved.")
-            self.ConfigStatus[1] = True
+            self.ConfigurationStatus['Updater']['Complete'] = True
             self.UpdateStatus()
         elif all(element == None for element in status):
-            self.ConfigStatus[1] = True
+            self.ConfigurationStatus['Updater']['Complete'] = True
             self.UpdateStatus()
             self.StatusLabel.config(text="Done!")
             self.ClearConfigure()
@@ -454,7 +502,7 @@ class GUI:
                         self.data.MinimumPythonVersion.get("1.0", "end-1c"), self.data.packages)
 
         if all(element == None for element in status):
-            self.ConfigStatus[0] = True
+            self.ConfigurationStatus['Setup']['Complete'] = True
             self.UpdateStatus()
             self.StatusLabel.config(text="Done!")
             self.ClearConfigure()
@@ -568,7 +616,7 @@ class GUI:
         status = self.Configurator.Launch.Set(ProjectRoot, ProjectMain, self.data.codes, SkipCheck)
         if all(element == None for element in status):
             self.data = self.Storage()
-            self.ConfigStatus[2] = True
+            self.ConfigurationStatus['Launcher']['Complete'] = True
             self.UpdateStatus()
             self.StatusLabel.config(text="Done!")
             self.ClearConfigure()
